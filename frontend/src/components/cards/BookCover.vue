@@ -1,14 +1,20 @@
 <template>
   <div :class="['relative aspect-[2/3] w-full select-none', shadow && 'shadow-frame']">
-    <!-- A real cover when one is uploaded... -->
-    <img
-      v-if="src"
-      :src="src"
-      :alt="`Cover of ${book.title}`"
-      class="absolute inset-0 h-full w-full object-cover"
-      loading="lazy"
-      decoding="async"
-    />
+    <!-- A real cover when one is uploaded. `contain` on a paper-toned panel so
+         both flat artwork (which fills a 2:3 frame exactly) and 3D mock-ups
+         shot on white render correctly rather than being cropped. -->
+    <div v-if="src" class="absolute inset-0 isolate flex items-center justify-center bg-sand-50">
+      <!-- Multiply dissolves the white studio background of 3D mock-ups into the
+           panel. Flat artwork fills the frame, where multiplying against a
+           near-white panel is a no-op. -->
+      <img
+        :src="src"
+        :alt="`Cover of ${book.title}`"
+        class="h-full w-full object-contain mix-blend-multiply"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
 
     <!-- ...otherwise a typeset placeholder so unpublished titles still look considered. -->
     <div v-else class="surface-navy absolute inset-0 flex flex-col justify-center px-[11%] text-center" role="img" :aria-label="`Placeholder cover for ${book.title}`">
@@ -24,8 +30,10 @@
       </p>
     </div>
 
-    <!-- Spine highlight: sells it as an object rather than a flat rectangle. -->
+    <!-- Spine highlight sells the typeset placeholder as an object rather than a
+         flat rectangle. Real artwork already has its own edge, so it is skipped. -->
     <span
+      v-if="!src"
       class="pointer-events-none absolute inset-y-0 left-0 w-[7%] bg-gradient-to-r from-black/25 via-black/5 to-transparent"
     ></span>
   </div>

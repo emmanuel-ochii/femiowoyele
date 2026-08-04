@@ -204,6 +204,27 @@
     @apply text-white/55;
   }
 
+  .on-dark .form-divider {
+    @apply border-white/15;
+  }
+
+  .on-dark .form-note,
+  .on-dark .form-note .text-ink-faint {
+    @apply text-white/50;
+  }
+
+  .on-dark .form-note .text-forest-700 {
+    @apply text-gold-300;
+  }
+
+  .on-dark .form-note .text-red-700 {
+    @apply text-red-300;
+  }
+
+  .on-dark .field-error {
+    @apply text-red-300;
+  }
+
   /* ------------------------------------------------------------- ornaments */
   .hairline {
     @apply h-px w-full bg-navy-900/10;

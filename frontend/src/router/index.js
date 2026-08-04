@@ -30,6 +30,11 @@ const router = createRouter({
           component: () => import('../domains/ResearchIdeas/ArticleDetailPage.vue'),
         },
         { path: 'books', name: 'books', component: () => import('../domains/Books/BooksPage.vue') },
+        {
+          path: 'entrusted',
+          name: 'entrusted-launch',
+          component: () => import('../domains/Launch/EntrustedLaunchPage.vue'),
+        },
         { path: 'books/:slug', name: 'book-detail', component: () => import('../domains/Books/BookDetailPage.vue') },
         { path: 'speaking', name: 'speaking', component: () => import('../domains/Speaking/SpeakingPage.vue') },
         { path: 'mentorship', name: 'mentorship', component: () => import('../domains/Mentorship/MentorshipPage.vue') },

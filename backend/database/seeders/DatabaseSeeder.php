@@ -208,9 +208,9 @@ class DatabaseSeeder extends Seeder
             ['slug' => 'entrusted'],
             [
                 'title' => 'Entrusted',
-                'subtitle' => 'Leadership, stewardship, and the work of responsibility',
+                'subtitle' => 'Lessons, responsibilities and truths for a life of legacy',
                 'description' => "Entrusted argues that the central question of leadership is not how much influence you can gather, but what you are prepared to be held accountable for.\n\nDrawing on years of building companies, sitting on boards, and mentoring founders, the book examines what changes when leaders treat authority as something held in trust rather than something earned and owned. It looks at succession, at the quiet decisions that determine whether an organisation is trustworthy, and at the cost of holding a standard when it would be cheaper not to.\n\nIt is written for people already carrying weight — founders, executives, board members, and those who will inherit institutions built by others.",
-                'cover_image_path' => '/images/entrusted-cover.svg',
+                'cover_image_path' => '/images/entrusted-mock.jpg',
                 'is_featured' => true,
                 'order' => 1,
             ],
@@ -401,6 +401,32 @@ class DatabaseSeeder extends Seeder
                 'body' => 'This is where the work is gathered: the companies, the essays, the books, the mentorship rooms, and the public conversations. It is designed to grow with the work rather than around it — calm in tone, rigorous in substance, rooted in African experience, and open to the world.',
                 'meta' => [],
                 'order' => 2,
+            ],
+            [
+                'context' => 'home',
+                'slug' => 'home.launch',
+                'title' => 'Entrusted',
+                'body' => 'On the evening of his fortieth birthday, Femi Owoyele will unveil his first book. The two occasions belong together: forty years of being formed, and a book about what it means to be handed something worth keeping.',
+                'meta' => [
+                    // Swapped in automatically once `starts_at` has passed, so the
+                    // section stops speaking in the future tense on its own.
+                    'body_after' => 'Entrusted was unveiled on the evening of Femi Owoyele\'s fortieth birthday, before family, friends, mentors, and the builders who have shaped the work. The two occasions belonged together: forty years of being formed, and a book about what it means to be handed something worth keeping.',
+                    'occasion' => 'Golden Reflections · Celebrating Forty Years',
+                    'tagline' => 'An evening of gratitude and new beginnings',
+                    'subtitle' => 'Lessons, responsibilities and truths for a life of legacy',
+                    // ISO-8601 with the West Africa Time offset — the countdown and
+                    // the "already launched" state are both derived from this.
+                    'starts_at' => '2026-08-18T16:00:00+01:00',
+                    'date_label' => 'Tuesday, 18 August 2026',
+                    'time_label' => '4:00 p.m.',
+                    'venue' => 'Watercress Event Centre',
+                    'address' => '5 Alade Avenue, Allen, Ikeja, Lagos',
+                    'image' => '/images/entrusted-mock.jpg',
+                    'book_slug' => 'entrusted',
+                    // Add 'rsvp_phone' => '...' here to publish a direct RSVP line;
+                    // while it is absent, RSVPs are routed through the contact form.
+                ],
+                'order' => 4,
             ],
             [
                 'context' => 'home',

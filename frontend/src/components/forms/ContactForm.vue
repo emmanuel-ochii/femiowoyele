@@ -77,16 +77,16 @@
         :aria-describedby="errors.message ? 'err-message' : 'hint-message'"
       />
       <p v-if="errors.message" id="err-message" class="field-error">{{ errors.message }}</p>
-      <p v-else id="hint-message" class="mt-2 text-[0.78rem] leading-6 text-ink-faint">
-        Context on the audience, timeline, and outcome you have in mind makes a reply far more useful.
+      <p v-else id="hint-message" class="form-note mt-2 text-[0.78rem] leading-6 text-ink-faint">
+        {{ messageHint }}
       </p>
     </div>
 
-    <div class="flex flex-col gap-4 border-t border-navy-900/10 pt-7 sm:flex-row sm:items-center sm:justify-between">
-      <BaseButton type="submit" variant="primary" size="lg" :loading="isSubmitting" icon="arrowRight">
-        {{ isSubmitting ? 'Sending' : 'Send enquiry' }}
+    <div class="form-divider flex flex-col gap-4 border-t border-navy-900/10 pt-7 sm:flex-row sm:items-center sm:justify-between">
+      <BaseButton type="submit" :variant="submitVariant" size="lg" :loading="isSubmitting" icon="arrowRight">
+        {{ isSubmitting ? 'Sending' : submitLabel }}
       </BaseButton>
-      <p class="text-[0.82rem] leading-6" aria-live="polite">
+      <p class="form-note text-[0.82rem] leading-6" aria-live="polite">
         <span v-if="status" class="font-medium text-forest-700">{{ status }}</span>
         <span v-else-if="serverError" class="font-medium text-red-700">{{ serverError }}</span>
         <span v-else class="text-ink-faint">Replies usually follow within a few working days.</span>
@@ -107,10 +107,18 @@ const props = defineProps({
   defaultType: { type: String, default: 'general' },
   subjectPlaceholder: { type: String, default: 'A short summary' },
   messagePlaceholder: { type: String, default: 'Share the purpose, audience, timeline, and any institutional context.' },
+  messageHint: {
+    type: String,
+    default: 'Context on the audience, timeline, and outcome you have in mind makes a reply far more useful.',
+  },
+  submitLabel: { type: String, default: 'Send enquiry' },
+  /** Use `gold` when the form sits on a deep navy panel. */
+  submitVariant: { type: String, default: 'primary' },
 });
 
 const enquiryTypes = [
   { value: 'general', label: 'General enquiry' },
+  { value: 'launch', label: 'Book launch RSVP' },
   { value: 'speaking', label: 'Speaking invitation' },
   { value: 'mentorship', label: 'Mentorship' },
   { value: 'consulting', label: 'Advisory or consulting' },
@@ -124,7 +132,7 @@ const schema = toTypedSchema(
     name: z.string().min(2, 'Please enter your name.'),
     email: z.string().min(1, 'Please enter your email address.').email('Please enter a valid email address.'),
     subject: z.string().min(4, 'Add a short subject line.'),
-    type: z.enum(['speaking', 'consulting', 'research', 'partnership', 'media', 'mentorship', 'general']),
+    type: z.enum(['speaking', 'consulting', 'research', 'partnership', 'media', 'mentorship', 'launch', 'general']),
     message: z.string().min(20, 'A little more context helps — 20 characters or more.').max(5000, 'Please keep this under 5000 characters.'),
   }),
 );

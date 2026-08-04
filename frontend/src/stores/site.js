@@ -15,6 +15,7 @@ export const useSiteStore = defineStore('site', {
       { label: 'Build Tomorrow', to: '/build-tomorrow' },
       { label: 'Research & Ideas', to: '/research-ideas' },
       { label: 'Books', to: '/books' },
+      { label: 'Entrusted', to: '/entrusted' },
       { label: 'Speaking', to: '/speaking' },
       { label: 'Mentorship', to: '/mentorship' },
       { label: 'Impact', to: '/impact' },
@@ -51,6 +52,7 @@ export const useSiteStore = defineStore('site', {
         items: [
           { label: 'Research & Ideas', to: '/research-ideas', description: 'Long-form essays and frameworks' },
           { label: 'Books', to: '/books', description: 'Entrusted and works in progress' },
+          { label: 'The Entrusted launch', to: '/entrusted', description: '18 August 2026, Ikeja, Lagos' },
           { label: 'Journal', to: '/journal', description: 'Shorter notes between publications' },
         ],
       },
@@ -73,6 +75,7 @@ export const useSiteStore = defineStore('site', {
         items: [
           { label: 'Research & Ideas', to: '/research-ideas' },
           { label: 'Books', to: '/books' },
+          { label: 'The Entrusted launch', to: '/entrusted' },
           { label: 'Journal', to: '/journal' },
         ],
       },

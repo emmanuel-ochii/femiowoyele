@@ -9,8 +9,11 @@
       description="Books are where an argument is allowed to be patient. These are the works published and in progress."
     />
 
+    <!-- ====================================================== book launch -->
+    <BookLaunchSection :launch="launch" />
+
     <!-- =================================================== featured title -->
-    <SectionWrapper v-if="featured" tone="paper">
+    <SectionWrapper v-if="featured && !launch" tone="paper">
       <div class="grid items-center gap-12 lg:grid-cols-12 lg:gap-20">
         <div v-reveal class="mx-auto w-full max-w-[280px] lg:col-span-4 lg:mx-0 lg:max-w-[320px]">
           <BookCover :book="featured" />
@@ -32,7 +35,7 @@
 
     <!-- ====================================================== other works -->
     <SectionWrapper v-if="others.length">
-      <SectionHeading eyebrow="Also in the catalogue" title="Further works" />
+      <SectionHeading :eyebrow="launch ? 'The catalogue' : 'Also in the catalogue'" :title="launch ? 'All works' : 'Further works'" />
       <div class="mt-12 grid gap-6">
         <BookCard v-for="(book, index) in others" :key="book.slug" v-reveal="index * 60" :book="book" />
       </div>
@@ -52,6 +55,7 @@
 import { computed } from 'vue';
 import BookCard from '../../components/cards/BookCard.vue';
 import BookCover from '../../components/cards/BookCover.vue';
+import BookLaunchSection from '../../components/sections/BookLaunchSection.vue';
 import CtaBand from '../../components/sections/CtaBand.vue';
 import PageHero from '../../components/sections/PageHero.vue';
 import BaseButton from '../../components/ui/BaseButton.vue';
@@ -65,8 +69,14 @@ import { usePageMeta } from '../../composables/usePageMeta';
 
 const { payload, loading, error, retry } = useApiPage('/books');
 const books = computed(() => payload.value?.data || []);
+const launch = computed(() => {
+  const block = payload.value?.meta?.launch;
+  return block?.slug ? block : null;
+});
 const featured = computed(() => books.value.find((book) => book.is_featured) || books.value[0] || null);
-const others = computed(() => books.value.filter((book) => book.slug !== featured.value?.slug));
+const others = computed(() =>
+  launch.value ? books.value : books.value.filter((book) => book.slug !== featured.value?.slug),
+);
 
 usePageMeta({
   title: 'Books',

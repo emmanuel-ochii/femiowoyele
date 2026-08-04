@@ -29,6 +29,7 @@ class HomeController extends Controller
             'data' => [
                 'hero' => new ContentBlockResource($blocks->get('home.hero')),
                 'intro' => new ContentBlockResource($blocks->get('home.intro')),
+                'launch' => new ContentBlockResource($blocks->get('home.launch')),
                 'footer_statement' => new ContentBlockResource($blocks->get('home.footer-statement')),
                 'pillars' => PillarResource::collection(Pillar::orderBy('order')->get()),
                 'featured' => [
