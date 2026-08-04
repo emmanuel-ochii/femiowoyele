@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::updateOrCreate(
+        User::firstOrCreate(
             ['email' => 'admin@femiowoyele.com'],
             [
                 'name' => 'FemiOwoyele Admin',
@@ -179,9 +179,9 @@ class DatabaseSeeder extends Seeder
     private function contentBlocks(): array
     {
         return [
-            ['context' => 'home', 'slug' => 'home.hero', 'title' => 'Femi Owoyele', 'body' => 'A body of work at the intersection of enterprise, leadership, governance, sustainability, mentorship, scholarship, authorship, and public engagement.', 'meta' => ['kicker' => 'Enterprise. Leadership. Stewardship.', 'image' => '/images/femi-hero.png'], 'order' => 1],
-            ['context' => 'home', 'slug' => 'home.intro', 'title' => 'Built for substance', 'body' => 'FemiOwoyele.com is designed as a calm, evolving home for ideas, initiatives, conversations, and institutions shaped by a long view of responsibility.', 'meta' => [], 'order' => 2],
-            ['context' => 'home', 'slug' => 'home.footer-statement', 'title' => 'The long view', 'body' => 'The work is ongoing: to build, to clarify, to mentor, and to contribute to institutions worthy of trust.', 'meta' => [], 'order' => 3],
+            ['context' => 'home', 'slug' => 'home.hero', 'title' => 'Femi Owoyele', 'body' => 'A considered home for enterprise, governance, sustainability, mentorship, authorship, and public engagement, shaped by a long view of responsibility and institutional trust.', 'meta' => ['kicker' => 'Enterprise. Leadership. Stewardship.', 'image' => '/images/profem.jpeg'], 'order' => 1],
+            ['context' => 'home', 'slug' => 'home.intro', 'title' => 'A platform for serious work', 'body' => 'FemiOwoyele.com brings together ideas, initiatives, and records of practice across company building, public thought, mentorship, books, and civic imagination. It is designed to grow with the work: calm in tone, rigorous in substance, and global in conversation while remaining rooted in African experience.', 'meta' => [], 'order' => 2],
+            ['context' => 'home', 'slug' => 'home.footer-statement', 'title' => 'The long view', 'body' => 'The work continues through enterprises, ideas, institutions, mentorship rooms, and public conversations shaped by responsibility.', 'meta' => [], 'order' => 3],
             ['context' => 'about', 'slug' => 'about.identity', 'title' => 'Who I Am', 'body' => 'Femi Owoyele works across enterprise, leadership, governance, sustainability, mentorship, scholarship, authorship, and public engagement. The connecting thread is a commitment to responsible building.', 'meta' => [], 'order' => 1],
             ['context' => 'about', 'slug' => 'about.outlook', 'title' => 'African in identity, global in outlook', 'body' => 'The work is rooted in African realities and aspirations while remaining open to global conversation, standards, and collaboration.', 'meta' => [], 'order' => 2],
             ['context' => 'build_tomorrow', 'slug' => 'build-tomorrow.vision', 'title' => 'Vision', 'body' => 'Build Tomorrow is a platform for emerging builders: a conference, community, and knowledge space for those shaping institutions, companies, and public life.', 'meta' => [], 'order' => 1],

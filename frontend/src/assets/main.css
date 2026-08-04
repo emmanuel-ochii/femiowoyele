@@ -87,5 +87,5 @@ a {
 
 .home-hero-copy {
   width: min(100%, calc(100vw - 40px));
-  max-width: min(48rem, calc(100vw - 40px));
+  max-width: min(44rem, calc(100vw - 40px));
 }
