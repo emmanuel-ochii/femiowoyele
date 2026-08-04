@@ -61,8 +61,9 @@ backend/railway.json
   Configures Laravel pre-deploy migration/cache commands and /api/health healthcheck.
 
 backend/railway/init-app.sh
-  Runs optimize:clear, migrations, config cache, event cache, and view cache.
+  Clears file-based Laravel caches, runs migrations, then rebuilds config, event, and view caches.
   It also prints safe diagnostics so Railway pre-deploy failures are easier to understand.
+  It intentionally does not run optimize:clear before migrations because optimize:clear calls cache:clear, and database cache clearing fails on first deploy before the cache table exists.
 
 backend/railway/run-worker.sh
   Runs a Laravel queue worker. Use later when queues become important.
@@ -497,15 +498,17 @@ Expected behavior:
 sh ./railway/init-app.sh
 ```
 
-4. The script runs migrations.
-5. The service starts.
-6. Railway checks:
+4. The script clears file-based Laravel caches without touching the database cache.
+5. The script runs migrations.
+6. The script rebuilds config, event, and view caches.
+7. The service starts.
+8. Railway checks:
 
 ```text
 /api/health
 ```
 
-7. The deployment becomes active.
+9. The deployment becomes active.
 
 ### Step 8: Generate Temporary Railway Backend Domain
 
@@ -613,6 +616,26 @@ DB_URL=${{MySQL.MYSQL_URL}}
 - Redeploy backend.
 
 ```text
+SQLSTATE[42S02]: Base table or view not found: 1146 Table 'railway.cache' doesn't exist
+SQL: delete from `cache`
+```
+
+Cause:
+
+- The pre-deploy script ran `php artisan optimize:clear`.
+- `optimize:clear` calls `cache:clear`.
+- With `CACHE_STORE=database`, `cache:clear` tries to delete rows from the `cache` table.
+- On a first deploy, that table does not exist until migrations run.
+
+Fix:
+
+- Use the updated `backend/railway/init-app.sh` from this repository.
+- The updated script runs `config:clear`, `event:clear`, `route:clear`, and `view:clear` before migrations.
+- It does not run `optimize:clear` before migrations.
+- Commit and push the updated script.
+- Redeploy the backend service.
+
+```text
 Base table or view already exists
 Duplicate column name
 ```
@@ -637,6 +660,7 @@ The improved `backend/railway/init-app.sh` prints safe markers like:
 
 ```text
 [railway:init] Starting Laravel pre-deploy tasks
+[railway:init] Clearing file-based Laravel caches
 [railway:init] Running database migrations
 [railway:init] Rebuilding Laravel caches
 ```
@@ -1582,6 +1606,7 @@ Open the failed deployment logs and inspect the actual pre-deploy output. The mo
 - Commit and push `backend/railway/init-app.sh` if the log says the script is missing.
 - Set `APP_KEY` if Laravel says the encryption key is missing.
 - Set `DB_URL=${{MySQL.MYSQL_URL}}` if migrations cannot connect to MySQL.
+- Use the latest `backend/railway/init-app.sh` if the log says `Table 'railway.cache' doesn't exist`.
 - Check the MySQL service name if the `DB_URL` reference is not resolving.
 - Wait for MySQL to finish deploying before redeploying the backend.
 - Temporarily set `RAILWAY_SKIP_MIGRATIONS=true` only to confirm the app can boot without migrations, then remove it and fix the database issue.

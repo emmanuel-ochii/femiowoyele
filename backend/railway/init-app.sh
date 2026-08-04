@@ -16,8 +16,11 @@ if [ "${DB_CONNECTION:-}" = "mysql" ] && [ -z "${DB_URL:-}" ] && [ -z "${MYSQL_U
   exit 1
 fi
 
-echo "[railway:init] Clearing old Laravel caches"
-php artisan optimize:clear
+echo "[railway:init] Clearing file-based Laravel caches"
+php artisan config:clear
+php artisan event:clear
+php artisan route:clear
+php artisan view:clear
 
 if [ "${RAILWAY_SKIP_MIGRATIONS:-false}" = "true" ]; then
   echo "[railway:init] WARNING: RAILWAY_SKIP_MIGRATIONS=true, skipping php artisan migrate --force"
