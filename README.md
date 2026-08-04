@@ -9,11 +9,16 @@ Professional content platform for FemiOwoyele.com, implemented from `femiowoyele
 
 ## Local Setup
 
+The most reliable local setup uses Vite's dev proxy: the browser talks to `http://127.0.0.1:5173`, and Vite forwards `/api` requests to Laravel at `http://127.0.0.1:8000`.
+
+Detailed guide: [Local development guide](docs/local-development.md)
+
 Backend:
 
 ```bash
 cd backend
 cp .env.example .env
+composer install
 php artisan key:generate
 php artisan migrate --seed
 php artisan serve --host=127.0.0.1 --port=8000
@@ -24,7 +29,8 @@ Frontend:
 ```bash
 cd frontend
 npm install
-VITE_API_BASE_URL=http://127.0.0.1:8000/api npm run dev
+cp .env.example .env
+npm run dev
 ```
 
 Seeded admin:
@@ -48,6 +54,11 @@ cd backend && php artisan test
 cd frontend && npm test && npm run build
 E2E_BASE_URL=http://127.0.0.1:5173 npm run test:e2e
 ```
+
+## Deployment
+
+- [Railway deployment guide](docs/railway-deployment.md)
+- [Namecheap shared hosting deployment guide](docs/namecheap-shared-hosting-deployment.md)
 
 ## Implementation Note
 
