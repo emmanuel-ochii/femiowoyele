@@ -64,6 +64,7 @@ backend/railway/init-app.sh
   Clears file-based Laravel caches, runs migrations, then rebuilds config, event, and view caches.
   It also prints safe diagnostics so Railway pre-deploy failures are easier to understand.
   It intentionally does not run optimize:clear before migrations because optimize:clear calls cache:clear, and database cache clearing fails on first deploy before the cache table exists.
+  It skips view:clear and view:cache when resources/views does not exist because this backend is currently an API-only Laravel app.
 
 backend/railway/run-worker.sh
   Runs a Laravel queue worker. Use later when queues become important.
@@ -500,15 +501,16 @@ sh ./railway/init-app.sh
 
 4. The script clears file-based Laravel caches without touching the database cache.
 5. The script runs migrations.
-6. The script rebuilds config, event, and view caches.
-7. The service starts.
-8. Railway checks:
+6. The script rebuilds config and event caches.
+7. If Blade views exist, the script rebuilds view caches. If not, it skips view caching.
+8. The service starts.
+9. Railway checks:
 
 ```text
 /api/health
 ```
 
-9. The deployment becomes active.
+10. The deployment becomes active.
 
 ### Step 8: Generate Temporary Railway Backend Domain
 
@@ -630,8 +632,29 @@ Cause:
 Fix:
 
 - Use the updated `backend/railway/init-app.sh` from this repository.
-- The updated script runs `config:clear`, `event:clear`, `route:clear`, and `view:clear` before migrations.
+- The updated script runs `config:clear`, `event:clear`, and `route:clear` before migrations.
+- It runs `view:clear` only if `resources/views` exists.
 - It does not run `optimize:clear` before migrations.
+- Commit and push the updated script.
+- Redeploy the backend service.
+
+```text
+The "/app/resources/views" directory does not exist.
+Symfony\Component\Finder\Exception\DirectoryNotFoundException
+Illuminate\Foundation\Console\ViewCacheCommand
+```
+
+Cause:
+
+- The backend is currently an API-only Laravel app.
+- It does not have a `resources/views` directory.
+- `php artisan view:cache` expects the configured views directory to exist.
+
+Fix:
+
+- Use the updated `backend/railway/init-app.sh` from this repository.
+- The updated script checks whether `resources/views` exists.
+- If the directory does not exist, it skips `view:clear` and `view:cache`.
 - Commit and push the updated script.
 - Redeploy the backend service.
 
@@ -663,6 +686,7 @@ The improved `backend/railway/init-app.sh` prints safe markers like:
 [railway:init] Clearing file-based Laravel caches
 [railway:init] Running database migrations
 [railway:init] Rebuilding Laravel caches
+[railway:init] No resources/views directory found; skipping view:cache
 ```
 
 Use the last marker printed before failure to identify which step failed.
@@ -1529,7 +1553,7 @@ Start with:
 - `LOG_CHANNEL=stderr`.
 - `php artisan config:cache`.
 - `php artisan event:cache`.
-- `php artisan view:cache`.
+- `php artisan view:cache` only when `resources/views` exists.
 - Frontend served by Caddy with gzip/zstd enabled.
 - Static assets built by Vite with hashed filenames.
 - Healthchecks enabled.
@@ -1607,6 +1631,7 @@ Open the failed deployment logs and inspect the actual pre-deploy output. The mo
 - Set `APP_KEY` if Laravel says the encryption key is missing.
 - Set `DB_URL=${{MySQL.MYSQL_URL}}` if migrations cannot connect to MySQL.
 - Use the latest `backend/railway/init-app.sh` if the log says `Table 'railway.cache' doesn't exist`.
+- Use the latest `backend/railway/init-app.sh` if the log says `/app/resources/views` does not exist.
 - Check the MySQL service name if the `DB_URL` reference is not resolving.
 - Wait for MySQL to finish deploying before redeploying the backend.
 - Temporarily set `RAILWAY_SKIP_MIGRATIONS=true` only to confirm the app can boot without migrations, then remove it and fix the database issue.

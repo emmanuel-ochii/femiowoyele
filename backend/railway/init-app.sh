@@ -20,7 +20,11 @@ echo "[railway:init] Clearing file-based Laravel caches"
 php artisan config:clear
 php artisan event:clear
 php artisan route:clear
-php artisan view:clear
+if [ -d "resources/views" ]; then
+  php artisan view:clear
+else
+  echo "[railway:init] No resources/views directory found; skipping view:clear"
+fi
 
 if [ "${RAILWAY_SKIP_MIGRATIONS:-false}" = "true" ]; then
   echo "[railway:init] WARNING: RAILWAY_SKIP_MIGRATIONS=true, skipping php artisan migrate --force"
@@ -32,6 +36,10 @@ fi
 echo "[railway:init] Rebuilding Laravel caches"
 php artisan config:cache
 php artisan event:cache
-php artisan view:cache
+if [ -d "resources/views" ]; then
+  php artisan view:cache
+else
+  echo "[railway:init] No resources/views directory found; skipping view:cache"
+fi
 
 echo "[railway:init] Pre-deploy tasks completed"
