@@ -1,19 +1,35 @@
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-sand px-5 py-12">
-    <form class="w-full max-w-md bg-white p-8 shadow-soft" @submit.prevent="submit">
-      <RouterLink to="/" class="font-serif text-2xl text-navy">Femi Owoyele</RouterLink>
-      <p class="mt-2 text-sm font-semibold text-forest">Admin CMS</p>
-      <label class="mt-8 grid gap-2 text-sm font-semibold text-navy">
-        Email
-        <input v-model="email" class="focus-ring border border-navy/15 px-4 py-3 font-normal" type="email" />
-      </label>
-      <label class="mt-5 grid gap-2 text-sm font-semibold text-navy">
-        Password
-        <input v-model="password" class="focus-ring border border-navy/15 px-4 py-3 font-normal" type="password" />
-      </label>
-      <p v-if="error" class="mt-4 text-sm text-red-700">{{ error }}</p>
-      <BaseButton class="mt-6 w-full" type="submit">Sign in</BaseButton>
-      <p class="mt-5 text-xs leading-5 text-ink/55">Seeded local admin: admin@femiowoyele.com / password</p>
+  <div class="surface-navy on-dark flex min-h-screen items-center justify-center px-5 py-12">
+    <form class="w-full max-w-md border border-navy-900/10 bg-white p-8 shadow-frame sm:p-10" @submit.prevent="submit">
+      <RouterLink to="/" class="font-serif text-2xl text-navy-900">Femi Owoyele</RouterLink>
+      <p class="mt-2 text-micro font-semibold uppercase text-forest-700">Content studio</p>
+
+      <div class="mt-10 grid gap-7">
+        <div>
+          <label class="field-label" for="admin-email">Email</label>
+          <input id="admin-email" v-model="email" class="field-input mt-2" type="email" autocomplete="username" />
+        </div>
+        <div>
+          <label class="field-label" for="admin-password">Password</label>
+          <input
+            id="admin-password"
+            v-model="password"
+            class="field-input mt-2"
+            type="password"
+            autocomplete="current-password"
+          />
+        </div>
+      </div>
+
+      <p v-if="error" class="field-error" role="alert">{{ error }}</p>
+
+      <BaseButton class="mt-8 w-full" type="submit" size="lg" :loading="submitting" icon="arrowRight">
+        {{ submitting ? 'Signing in' : 'Sign in' }}
+      </BaseButton>
+
+      <p class="mt-6 text-xs leading-5 text-ink-faint">
+        Local development account: <span class="font-medium text-ink">admin@femiowoyele.com</span> / password
+      </p>
     </form>
   </div>
 </template>
@@ -27,17 +43,21 @@ import { useAuthStore } from '../../stores/auth';
 const email = ref('admin@femiowoyele.com');
 const password = ref('password');
 const error = ref('');
+const submitting = ref(false);
 const auth = useAuthStore();
 const router = useRouter();
 
 const submit = async () => {
   error.value = '';
+  submitting.value = true;
 
   try {
     await auth.login({ email: email.value, password: password.value });
     router.push('/admin');
   } catch (caught) {
-    error.value = caught.response?.data?.message || 'Unable to sign in.';
+    error.value = caught.response?.data?.message || 'Those details were not recognised.';
+  } finally {
+    submitting.value = false;
   }
 };
 </script>

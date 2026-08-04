@@ -1,64 +1,77 @@
 <template>
-  <LoadingState v-if="loading" />
-  <ErrorState v-else-if="error" />
-  <div v-else>
+  <div>
     <PageHero
       eyebrow="Media"
-      title="Interviews, video, gallery, and public record."
-      description="A restrained media hub for interviews, TV, podcasts, videos, images, and downloads."
+      title="Interviews, talks, and public record."
+      description="A restrained archive of conversations, broadcasts, and images from the work — for journalists, organisers, and anyone who wants the primary source."
     />
-    <SectionWrapper tone="sand">
-      <div class="mb-8 flex flex-wrap gap-3">
-        <button
-          v-for="type in types"
-          :key="type.value"
-          class="focus-ring border px-4 py-2 text-sm font-semibold"
-          :class="selectedType === type.value ? 'border-forest bg-forest text-white' : 'border-navy/15 bg-white text-navy'"
-          type="button"
-          @click="selectType(type.value)"
-        >
-          {{ type.label }}
-        </button>
+
+    <SectionWrapper tone="paper">
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <FilterBar v-model="selectedType" :options="types" label="Filter media by type" class="flex-1" />
+        <p class="shrink-0 text-micro font-semibold uppercase text-ink-faint sm:pb-5">
+          {{ items.length }} {{ items.length === 1 ? 'item' : 'items' }}
+        </p>
       </div>
-      <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        <ContentCard
-          v-for="item in items"
-          :key="item.slug"
-          :title="item.title"
-          :description="item.description"
-          :meta="item.type"
-        />
+
+      <LoadingState v-if="loading" class="!px-0" />
+      <ErrorState v-else-if="error" :on-retry="retry" class="!px-0" />
+
+      <div v-else-if="items.length" :class="['mt-12 grid gap-6', cardGridClass(items.length)]">
+        <MediaCard v-for="(item, index) in items" :key="item.slug" v-reveal="index * 50" :item="item" />
       </div>
+
+      <EmptyState
+        v-else
+        class="mt-12"
+        title="Nothing filed under this type yet."
+        message="Try another category — interviews, broadcasts, and recordings are added as they are published."
+      />
     </SectionWrapper>
+
+    <CtaBand
+      eyebrow="Press"
+      title="Working on a story or a booking?"
+      description="Interview requests, biography and photography, and speaking availability."
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import ContentCard from '../../components/cards/ContentCard.vue';
+import { computed, ref, watch } from 'vue';
+import MediaCard from '../../components/cards/MediaCard.vue';
+import CtaBand from '../../components/sections/CtaBand.vue';
 import PageHero from '../../components/sections/PageHero.vue';
+import EmptyState from '../../components/ui/EmptyState.vue';
 import ErrorState from '../../components/ui/ErrorState.vue';
+import FilterBar from '../../components/ui/FilterBar.vue';
 import LoadingState from '../../components/ui/LoadingState.vue';
 import SectionWrapper from '../../components/ui/SectionWrapper.vue';
 import { useApiPage } from '../../composables/useApiPage';
-import { contentApi } from '../../services/contentApi';
+import { usePageMeta } from '../../composables/usePageMeta';
+import { cardGridClass } from '../../utils/layout';
 
 const types = [
   { label: 'All', value: '' },
   { label: 'Interviews', value: 'interview' },
-  { label: 'TV', value: 'tv' },
+  { label: 'Television', value: 'tv' },
   { label: 'Podcasts', value: 'podcast' },
-  { label: 'Videos', value: 'video' },
+  { label: 'Video', value: 'video' },
   { label: 'Gallery', value: 'image' },
   { label: 'Downloads', value: 'download' },
 ];
 
 const selectedType = ref('');
-const { payload, loading, error } = useApiPage('/media');
+const { payload, loading, error, load, retry } = useApiPage('/media', () =>
+  selectedType.value ? { type: selectedType.value } : {},
+);
+
+watch(selectedType, () => load());
+
 const items = computed(() => payload.value?.data || []);
 
-const selectType = async (type) => {
-  selectedType.value = type;
-  payload.value = await contentApi.get('/media', type ? { type } : {});
-};
+usePageMeta({
+  title: 'Media',
+  description: 'Interviews, broadcasts, podcasts, talks, and images from the work of Femi Owoyele.',
+});
 </script>

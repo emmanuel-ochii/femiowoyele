@@ -9,6 +9,9 @@ const router = createRouter({
     {
       path: '/',
       component: PublicLayout,
+      // Every public page opens on a deep navy band, so the header sits
+      // transparent over it until the visitor scrolls.
+      meta: { transparentHeader: true },
       children: [
         { path: '', name: 'home', component: () => import('../domains/Home/HomePage.vue') },
         { path: 'about', name: 'about', component: () => import('../domains/About/AboutPage.vue') },

@@ -1,27 +1,47 @@
 <template>
-  <footer class="border-t border-navy/10 bg-mist px-5 py-12 sm:px-6 lg:px-8">
-    <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_1fr]">
-      <div>
-        <RouterLink to="/" class="font-serif text-2xl text-navy">Femi Owoyele</RouterLink>
-        <p class="mt-5 max-w-xl text-sm leading-7 text-ink/70">
-          A calm, evolving home for enterprise, leadership, governance, sustainability, mentorship, scholarship,
-          authorship, and public engagement.
-        </p>
+  <footer class="surface-navy on-dark">
+    <div class="shell py-16 lg:py-20">
+      <div class="grid gap-12 lg:grid-cols-[1.15fr_1.6fr] lg:gap-20">
+        <div>
+          <RouterLink to="/" class="font-serif text-2xl text-white">Femi Owoyele</RouterLink>
+          <p class="mt-5 max-w-sm text-[0.9rem] leading-7 text-white/60">
+            Enterprise, leadership, governance, sustainability, mentorship, authorship, and public engagement — held
+            together by one commitment: to build what can be trusted.
+          </p>
+          <BaseButton to="/contact" variant="ghost-light" size="sm" icon="arrowRight" class="mt-7">
+            Start a conversation
+          </BaseButton>
+        </div>
+
+        <nav class="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3" aria-label="Footer">
+          <div v-for="group in footerGroups" :key="group.label">
+            <p class="text-micro font-semibold uppercase text-gold-400">{{ group.label }}</p>
+            <ul class="mt-5 space-y-3">
+              <li v-for="item in group.items" :key="item.to">
+                <RouterLink
+                  :to="item.to"
+                  class="text-[0.9rem] text-white/70 transition-colors duration-200 hover:text-white"
+                >
+                  {{ item.label }}
+                </RouterLink>
+              </li>
+            </ul>
+          </div>
+        </nav>
       </div>
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <RouterLink
-          v-for="item in navigation"
-          :key="item.to"
-          :to="item.to"
-          class="focus-ring text-sm font-semibold text-ink/70 hover:text-forest"
-        >
-          {{ item.label }}
-        </RouterLink>
+
+      <div class="hairline mt-14"></div>
+
+      <div class="mt-6 flex flex-col gap-4 text-[0.8rem] text-white/45 sm:flex-row sm:items-center sm:justify-between">
+        <p>&copy; {{ year }} Femi Owoyele. All rights reserved.</p>
+        <div class="flex items-center gap-6">
+          <button type="button" class="inline-flex items-center gap-2 transition-colors hover:text-white" @click="toTop">
+            Back to top
+            <AppIcon name="arrowUp" :size="13" />
+          </button>
+          <RouterLink to="/admin" class="transition-colors hover:text-white">Admin</RouterLink>
+        </div>
       </div>
-    </div>
-    <div class="mx-auto mt-10 flex max-w-7xl flex-col gap-3 border-t border-navy/10 pt-6 text-xs text-ink/55 sm:flex-row sm:justify-between">
-      <p>&copy; {{ year }} FemiOwoyele.com</p>
-      <RouterLink to="/admin" class="focus-ring hover:text-forest">Admin</RouterLink>
     </div>
   </footer>
 </template>
@@ -29,7 +49,14 @@
 <script setup>
 import { computed } from 'vue';
 import { useSiteStore } from '../../stores/site';
+import AppIcon from '../ui/AppIcon.vue';
+import BaseButton from '../ui/BaseButton.vue';
 
 const year = new Date().getFullYear();
-const navigation = computed(() => useSiteStore().navigation);
+const footerGroups = computed(() => useSiteStore().footerGroups);
+
+const toTop = () => {
+  const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+};
 </script>

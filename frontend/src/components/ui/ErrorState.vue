@@ -1,10 +1,27 @@
 <template>
-  <div class="mx-auto max-w-3xl px-5 py-20">
-    <div class="border-l-4 border-gold bg-sand/70 p-6 text-ink">
-      <p class="font-semibold">Content is temporarily unavailable.</p>
-      <p class="mt-2 text-sm leading-6 text-ink/70">
-        Start the Laravel API or try again shortly. The page structure is ready to render the CMS content.
-      </p>
+  <div class="shell py-24 lg:py-32">
+    <div class="max-w-xl border-t-2 border-gold-500 bg-sand-50 p-8 sm:p-10">
+      <p class="eyebrow-plain text-gold-700">Temporarily unavailable</p>
+      <h1 class="display-4 mt-4 text-navy-900">{{ title }}</h1>
+      <p class="body-copy mt-4">{{ message }}</p>
+      <div class="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
+        <BaseButton v-if="onRetry" variant="primary" icon="arrowRight" @click="onRetry">Try again</BaseButton>
+        <BaseButton to="/" variant="ghost">Return to the homepage</BaseButton>
+      </div>
     </div>
   </div>
 </template>
+
+<script setup>
+import BaseButton from './BaseButton.vue';
+
+defineProps({
+  title: { type: String, default: 'This section could not be loaded.' },
+  message: {
+    type: String,
+    default: 'Something interrupted the connection while the page was loading. Please try again in a moment.',
+  },
+  /** Optional retry handler — the button is hidden when none is supplied. */
+  onRetry: { type: Function, default: null },
+});
+</script>

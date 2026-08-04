@@ -8,10 +8,10 @@ export const useContentStore = defineStore('content', {
     error: null,
   }),
   actions: {
-    async fetch(path, params = {}) {
+    async fetch(path, params = {}, { force = false } = {}) {
       const key = `${path}:${JSON.stringify(params)}`;
 
-      if (this.cache[key]) {
+      if (!force && this.cache[key]) {
         return this.cache[key];
       }
 

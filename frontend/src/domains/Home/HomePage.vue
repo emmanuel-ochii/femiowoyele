@@ -1,170 +1,274 @@
 <template>
-  <LoadingState v-if="loading" />
-  <ErrorState v-else-if="error" />
-  <div v-else>
-    <section class="relative isolate min-h-[86svh] overflow-hidden bg-navy pt-[var(--header-height)] text-white">
-      <img
-        :src="heroImage"
-        alt="Portrait of Femi Owoyele"
-        class="absolute inset-0 h-full w-full object-cover object-[70%_48%] sm:object-[72%_50%] lg:object-[78%_52%]"
-        fetchpriority="high"
-        decoding="async"
-      />
-      <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,28,50,0.98)_0%,rgba(11,28,50,0.92)_38%,rgba(11,28,50,0.58)_66%,rgba(11,28,50,0.14)_100%)]"></div>
-      <div class="absolute inset-x-0 bottom-0 h-2/3 bg-[linear-gradient(0deg,rgba(11,28,50,0.94)_0%,rgba(11,28,50,0.42)_42%,rgba(11,28,50,0)_100%)]"></div>
-      <div class="absolute inset-x-0 top-[var(--header-height)] h-px bg-white/14"></div>
+  <LoadingState v-if="loading" label="Loading the homepage" />
+  <ErrorState v-else-if="error" :on-retry="retry" />
 
-      <div class="relative mx-auto flex min-h-[calc(86svh-var(--header-height))] max-w-7xl flex-col justify-end px-5 pb-10 pt-16 sm:px-6 sm:pb-14 lg:justify-center lg:px-8 lg:py-20">
-        <div class="home-hero-copy min-w-0 animate-floatIn">
-          <p class="eyebrow !text-gold">{{ heroEyebrow }}</p>
-          <h1 class="heading-xl mt-5 max-w-4xl">{{ heroTitle }}</h1>
-          <p class="mt-7 max-w-full break-words text-base leading-8 text-white/84 sm:max-w-2xl sm:text-lg">
-            {{ heroBody }}
-          </p>
-          <div class="mt-9 flex flex-col gap-3 sm:flex-row">
-            <BaseButton to="/work" variant="gold">Explore the work</BaseButton>
-            <BaseButton to="/research-ideas" variant="secondary">Read current ideas</BaseButton>
+  <div v-else>
+    <!-- ============================================================ hero -->
+    <section class="surface-navy on-dark relative overflow-hidden pt-header">
+      <div class="shell relative grid items-center gap-14 py-16 sm:py-20 lg:grid-cols-12 lg:gap-12 lg:py-24">
+        <div class="animate-floatIn lg:col-span-7">
+          <p class="eyebrow !text-gold-400">{{ hero.kicker }}</p>
+
+          <h1 class="display-1 mt-7 text-balance text-white">{{ hero.title }}</h1>
+
+          <p class="lead mt-8 max-w-xl text-pretty !text-white/80">{{ hero.body }}</p>
+
+          <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
+            <BaseButton to="/work" variant="gold" size="lg" icon="arrowRight">Explore the work</BaseButton>
+            <BaseButton to="/about" variant="outline-light" size="lg">About Femi</BaseButton>
           </div>
         </div>
 
-        <div class="mt-10 hidden w-full max-w-[44rem] grid-cols-4 border-y border-white/16 sm:grid lg:mt-14">
+        <figure class="relative mx-auto w-full max-w-sm lg:col-span-5 lg:max-w-none">
+          <!-- Offset gold frame: a quiet editorial device rather than a drop shadow. -->
+          <span class="pointer-events-none absolute -bottom-4 -right-4 hidden h-full w-full border border-gold-500/45 sm:block"></span>
+          <img
+            src="/images/femi-portrait.jpg"
+            srcset="/images/femi-portrait-sm.jpg 624w, /images/femi-portrait.jpg 1040w"
+            sizes="(min-width: 1024px) 34vw, (min-width: 640px) 22rem, 80vw"
+            alt="Portrait of Femi Owoyele"
+            width="1040"
+            height="1390"
+            class="relative aspect-[3/4] w-full object-cover object-top"
+            fetchpriority="high"
+            decoding="async"
+          />
+          <span
+            class="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-navy-950/95 via-navy-950/55 to-transparent"
+          ></span>
+          <figcaption class="absolute inset-x-0 bottom-0 p-6">
+            <p class="font-serif text-lg text-white">Oluwafemi Babatunde Owoyele</p>
+            <p class="mt-1 text-micro font-semibold uppercase text-gold-400">Builder · Author · Mentor</p>
+          </figcaption>
+        </figure>
+      </div>
+
+      <!-- Signals strip: reads as the index of an annual report. -->
+      <div class="border-t border-white/12">
+        <dl class="shell grid grid-cols-2 lg:grid-cols-4">
           <div
-            v-for="signal in heroSignals"
+            v-for="(signal, index) in heroSignals"
             :key="signal.label"
-            class="min-w-0 border-l border-white/16 px-4 py-4 first:border-l-0 first:pl-0"
+            :class="[
+              'border-white/12 py-7 pr-6 lg:py-8',
+              index % 2 === 1 && 'border-l pl-6',
+              index >= 2 && 'border-t lg:border-t-0',
+              index === 2 && 'lg:border-l lg:pl-6',
+              index === 3 && 'lg:pl-6',
+            ]"
           >
-            <p class="text-[0.68rem] font-semibold uppercase text-gold">{{ signal.label }}</p>
-            <p class="mt-2 break-words text-sm leading-6 text-white/78">{{ signal.value }}</p>
+            <dt class="text-micro font-semibold uppercase text-gold-400">{{ signal.label }}</dt>
+            <dd class="mt-3 text-[0.9rem] leading-6 text-white/70">{{ signal.value }}</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- ==================================================== introduction -->
+    <SectionWrapper>
+      <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+        <div v-reveal class="lg:col-span-5">
+          <p class="eyebrow">Introduction</p>
+          <h2 class="display-3 mt-6 text-balance text-navy-900">{{ intro.title }}</h2>
+        </div>
+        <div v-reveal="80" class="lg:col-span-7">
+          <p class="lead text-pretty">{{ intro.body }}</p>
+          <BaseButton to="/about" variant="ghost" class="mt-8" icon="arrowRight">Read the full story</BaseButton>
+        </div>
+      </div>
+    </SectionWrapper>
+
+    <!-- ========================================================= pillars -->
+    <SectionWrapper tone="sand">
+      <SectionHeading
+        eyebrow="Pillars of practice"
+        title="One body of work, six disciplines."
+        lead="Each pillar is a working practice rather than a job title — connected by the same question: what will still stand in twenty years?"
+        align="between"
+      >
+        <template #action>
+          <BaseButton to="/work" variant="outline" icon="arrowRight">View all pillars</BaseButton>
+        </template>
+      </SectionHeading>
+
+      <div class="mt-14 grid [&>*]:-mb-px [&>*]:-mr-px sm:grid-cols-2 lg:grid-cols-3">
+        <PillarCard v-for="(pillar, index) in pillars" :key="pillar.slug" v-reveal="index * 60" :pillar="pillar" />
+      </div>
+    </SectionWrapper>
+
+    <!-- ======================================================== featured -->
+    <SectionWrapper>
+      <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <div v-reveal class="lg:col-span-4">
+          <div class="lg:sticky lg:top-32">
+            <p class="eyebrow">Latest thinking</p>
+            <h2 class="display-3 mt-6 text-balance text-navy-900">Ideas worth returning to.</h2>
+            <p class="body-copy mt-5">
+              Essays and frameworks written for people carrying real responsibility — founders, boards, public
+              institutions, and the builders coming after them.
+            </p>
+            <BaseButton to="/research-ideas" variant="ghost" class="mt-8" icon="arrowRight">
+              All research &amp; ideas
+            </BaseButton>
+          </div>
+        </div>
+
+        <div class="lg:col-span-8">
+          <div v-if="featuredArticles.length" class="border-b border-navy-900/12">
+            <ContentCard
+              v-for="(article, index) in featuredArticles"
+              :key="article.slug"
+              v-reveal="index * 70"
+              variant="list"
+              :to="`/research-ideas/${article.slug}`"
+              :title="article.title"
+              :description="article.excerpt"
+              :meta="article.category?.name"
+              :date="formatDate(article.published_at)"
+              action="Read the essay"
+            />
+          </div>
+          <EmptyState v-else title="The first essays are on their way." />
+        </div>
+      </div>
+    </SectionWrapper>
+
+    <!-- =========================================================== quote -->
+    <QuoteBanner :quote="quote" />
+
+    <!-- ==================================================== featured book -->
+    <SectionWrapper v-if="featuredBook" tone="paper">
+      <div class="grid items-center gap-12 lg:grid-cols-12 lg:gap-20">
+        <div v-reveal class="mx-auto w-full max-w-[260px] lg:col-span-4 lg:mx-0 lg:max-w-[300px]">
+          <BookCover :book="featuredBook" />
+        </div>
+        <div v-reveal="80" class="lg:col-span-8">
+          <p class="eyebrow">Authorship</p>
+          <h2 class="display-3 mt-6 text-balance text-navy-900">{{ featuredBook.title }}</h2>
+          <p v-if="featuredBook.subtitle" class="mt-4 font-serif text-xl text-forest-800">{{ featuredBook.subtitle }}</p>
+          <p class="body-copy mt-6 max-w-2xl">{{ featuredBook.description }}</p>
+          <div class="mt-9 flex flex-wrap gap-x-4 gap-y-3">
+            <BaseButton :to="`/books/${featuredBook.slug}`" variant="primary" icon="arrowRight">About the book</BaseButton>
+            <BaseButton to="/books" variant="outline">All books</BaseButton>
+          </div>
+        </div>
+      </div>
+    </SectionWrapper>
+
+    <!-- ========================================================== impact -->
+    <SectionWrapper tone="navy">
+      <SectionHeading
+        dark
+        eyebrow="Impact so far"
+        title="A record still being written."
+        lead="Numbers are a partial picture, but they mark the shape of the work: people formed, rooms addressed, and communities reached."
+        align="between"
+      >
+        <template #action>
+          <BaseButton to="/impact" variant="outline-light" icon="arrowRight">See the full record</BaseButton>
+        </template>
+      </SectionHeading>
+
+      <div class="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+        <StatCard
+          v-for="(metric, index) in impactMetrics"
+          :key="metric.slug"
+          v-reveal="index * 60"
+          :metric="metric"
+          dark
+        />
+      </div>
+    </SectionWrapper>
+
+    <!-- ====================================================== newsletter -->
+    <section class="surface-sand">
+      <div class="shell py-16 lg:py-24">
+        <div v-reveal class="grid gap-12 lg:grid-cols-12 lg:items-end lg:gap-20">
+          <div class="lg:col-span-6">
+            <p class="eyebrow">{{ footerStatement.title }}</p>
+            <h2 class="display-3 mt-6 text-balance text-navy-900">{{ footerStatement.body }}</h2>
+          </div>
+          <div class="lg:col-span-6">
+            <p class="body-copy">
+              New essays, book news, and mentorship openings — sent occasionally, and only when there is something
+              worth your attention.
+            </p>
+            <div class="mt-8">
+              <NewsletterForm source="home" hint="Occasional essays and notes. Unsubscribe at any time." />
+            </div>
           </div>
         </div>
       </div>
     </section>
-
-    <SectionWrapper>
-      <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
-        <div>
-          <p class="eyebrow">Introduction</p>
-          <h2 class="heading-md mt-4 text-navy">{{ introTitle }}</h2>
-        </div>
-        <p class="prose-content">{{ introBody }}</p>
-      </div>
-    </SectionWrapper>
-
-    <SectionWrapper tone="sand">
-      <div class="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p class="eyebrow">Pillars</p>
-          <h2 class="heading-md mt-4 text-navy">A coherent body of work</h2>
-        </div>
-        <BaseButton to="/work" variant="secondary">View all pillars</BaseButton>
-      </div>
-      <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        <PillarCard v-for="pillar in pillars" :key="pillar.slug" :pillar="pillar" />
-      </div>
-    </SectionWrapper>
-
-    <SectionWrapper>
-      <div class="grid gap-12 lg:grid-cols-[0.85fr_1.15fr]">
-        <div>
-          <p class="eyebrow">Featured</p>
-          <h2 class="heading-md mt-4 text-navy">Ideas, authorship, and public record</h2>
-        </div>
-        <div class="grid gap-2">
-          <ContentCard
-            v-for="article in featured.articles"
-            :key="article.slug"
-            :to="`/research-ideas/${article.slug}`"
-            :title="article.title"
-            :description="article.excerpt"
-            :meta="article.category?.name"
-          />
-        </div>
-      </div>
-    </SectionWrapper>
-
-    <QuoteBanner :quote="quote" />
-
-    <SectionWrapper>
-      <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard v-for="metric in impactMetrics" :key="metric.slug" :metric="metric" />
-      </div>
-    </SectionWrapper>
-
-    <SectionWrapper tone="navy">
-      <div class="grid gap-8 lg:grid-cols-[1fr_0.8fr] lg:items-center">
-        <div>
-          <p class="eyebrow !text-gold">Footer Statement</p>
-          <h2 class="heading-md mt-4">{{ footerStatement.title }}</h2>
-          <p class="mt-5 max-w-3xl text-lg leading-8 text-white/78">{{ footerStatement.body }}</p>
-        </div>
-        <NewsletterForm />
-      </div>
-    </SectionWrapper>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
+import BookCover from '../../components/cards/BookCover.vue';
+import ContentCard from '../../components/cards/ContentCard.vue';
 import PillarCard from '../../components/cards/PillarCard.vue';
 import StatCard from '../../components/cards/StatCard.vue';
-import ContentCard from '../../components/cards/ContentCard.vue';
 import NewsletterForm from '../../components/forms/NewsletterForm.vue';
 import QuoteBanner from '../../components/sections/QuoteBanner.vue';
 import BaseButton from '../../components/ui/BaseButton.vue';
+import EmptyState from '../../components/ui/EmptyState.vue';
 import ErrorState from '../../components/ui/ErrorState.vue';
 import LoadingState from '../../components/ui/LoadingState.vue';
+import SectionHeading from '../../components/ui/SectionHeading.vue';
 import SectionWrapper from '../../components/ui/SectionWrapper.vue';
 import { useApiPage } from '../../composables/useApiPage';
+import { usePageMeta } from '../../composables/usePageMeta';
+import { formatDate } from '../../utils/format';
 
-const { payload, loading, error } = useApiPage('/home');
-const originalHeroBody =
-  'A body of work at the intersection of enterprise, leadership, governance, sustainability, mentorship, scholarship, authorship, and public engagement.';
-const professionalHeroBody =
-  'A considered home for enterprise, governance, sustainability, mentorship, authorship, and public engagement, shaped by responsibility and institutional trust.';
-const originalIntroTitle = 'Built for substance';
-const originalIntroBody =
-  'FemiOwoyele.com is designed as a calm, evolving home for ideas, initiatives, conversations, and institutions shaped by a long view of responsibility.';
-const professionalIntroTitle = 'A platform for serious work';
-const professionalIntroBody =
-  'FemiOwoyele.com brings together ideas, initiatives, and records of practice across company building, public thought, mentorship, books, and civic imagination. It is designed to grow with the work: calm in tone, rigorous in substance, and global in conversation while remaining rooted in African experience.';
-const originalFooterBody =
-  'The work is ongoing: to build, to clarify, to mentor, and to contribute to institutions worthy of trust.';
-const professionalFooterBody =
-  'The work continues through enterprises, ideas, institutions, mentorship rooms, and public conversations shaped by responsibility.';
+const { payload, loading, error, retry } = useApiPage('/home');
+
 const data = computed(() => payload.value?.data || {});
-const hero = computed(() => data.value.hero || {});
-const intro = computed(() => data.value.intro || {});
-const featured = computed(() => data.value.featured || { articles: [], books: [], media: [] });
-const pillars = computed(() => data.value.pillars || []);
-const impactMetrics = computed(() => data.value.impact_metrics || []);
-const quote = computed(() => data.value.quote || {});
-const footerStatement = computed(() => ({
-  title: data.value.footer_statement?.title || 'The long view',
-  body:
-    !data.value.footer_statement?.body || data.value.footer_statement.body === originalFooterBody
-      ? professionalFooterBody
-      : data.value.footer_statement.body,
-}));
-const heroImage = computed(() => {
-  const image = hero.value.meta?.image;
 
-  return !image || image === '/images/femi-hero.png' ? '/images/profem.jpeg' : image;
+const hero = computed(() => {
+  const block = data.value.hero || {};
+  return {
+    kicker: block.meta?.kicker || 'Enterprise · Leadership · Stewardship',
+    title: block.title || 'Building what can be trusted.',
+    body:
+      block.body ||
+      'Four decades of work across enterprise, governance, sustainability, mentorship, and authorship — held together by one conviction: institutions outlive individuals, and they deserve to be built well.',
+  };
 });
-const heroEyebrow = computed(() => hero.value.meta?.kicker || 'Enterprise. Leadership. Stewardship.');
-const heroTitle = computed(() => hero.value.title || 'Femi Owoyele');
-const heroBody = computed(() =>
-  !hero.value.body || hero.value.body === originalHeroBody ? professionalHeroBody : hero.value.body,
-);
-const introTitle = computed(() =>
-  !intro.value.title || intro.value.title === originalIntroTitle ? professionalIntroTitle : intro.value.title,
-);
-const introBody = computed(() =>
-  !intro.value.body || intro.value.body === originalIntroBody ? professionalIntroBody : intro.value.body,
-);
+
+const intro = computed(() => {
+  const block = data.value.intro || {};
+  return {
+    title: block.title || 'A platform for serious work.',
+    body:
+      block.body ||
+      'This is where the work is gathered: the companies, the essays, the books, the mentorship rooms, and the public conversations. It is designed to grow — calm in tone, rigorous in substance, rooted in African experience, and open to the world.',
+  };
+});
+
+const footerStatement = computed(() => {
+  const block = data.value.footer_statement || {};
+  return {
+    title: block.title || 'The long view',
+    body: block.body || 'The work continues. Follow it as it unfolds.',
+  };
+});
+
+const pillars = computed(() => data.value.pillars || []);
+const featuredArticles = computed(() => data.value.featured?.articles || []);
+const featuredBook = computed(() => (data.value.featured?.books || [])[0] || null);
+const impactMetrics = computed(() => data.value.impact_metrics || []);
+const quote = computed(() => data.value.quote || null);
+
 const heroSignals = [
-  { label: 'Focus', value: 'Enterprise and governance' },
-  { label: 'Formation', value: 'Builder mentorship' },
-  { label: 'Authorship', value: 'Books and essays' },
-  { label: 'Outlook', value: 'African roots, global reach' },
+  { label: 'Practice', value: 'Enterprise, governance, and sustainability' },
+  { label: 'Formation', value: 'Mentorship for the next generation of builders' },
+  { label: 'Authorship', value: 'Books, essays, and public writing' },
+  { label: 'Outlook', value: 'African in identity, global in conversation' },
 ];
+
+usePageMeta(() => ({
+  title: null,
+  description: hero.value.body,
+}));
 </script>

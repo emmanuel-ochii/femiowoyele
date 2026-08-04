@@ -1,49 +1,96 @@
 <template>
-  <form class="grid gap-5" novalidate @submit="onSubmit">
-    <div class="grid gap-5 sm:grid-cols-2">
-      <label class="grid gap-2 text-sm font-semibold text-navy">
-        Name
-        <input v-model="name" class="focus-ring border border-navy/15 px-4 py-3 font-normal" type="text" />
-        <span v-if="errors.name" class="text-xs text-red-700">{{ errors.name }}</span>
-      </label>
-      <label class="grid gap-2 text-sm font-semibold text-navy">
-        Email
-        <input v-model="email" class="focus-ring border border-navy/15 px-4 py-3 font-normal" type="email" />
-        <span v-if="errors.email" class="text-xs text-red-700">{{ errors.email }}</span>
-      </label>
+  <form class="grid gap-8" novalidate @submit="onSubmit">
+    <div class="grid gap-8 sm:grid-cols-2">
+      <div>
+        <label class="field-label" for="contact-name">Full name</label>
+        <input
+          id="contact-name"
+          v-model="name"
+          class="field-input mt-2"
+          :class="errors.name && 'field-input-invalid'"
+          type="text"
+          autocomplete="name"
+          :aria-invalid="Boolean(errors.name)"
+          :aria-describedby="errors.name ? 'err-name' : undefined"
+        />
+        <p v-if="errors.name" id="err-name" class="field-error">{{ errors.name }}</p>
+      </div>
+
+      <div>
+        <label class="field-label" for="contact-email">Email address</label>
+        <input
+          id="contact-email"
+          v-model="email"
+          class="field-input mt-2"
+          :class="errors.email && 'field-input-invalid'"
+          type="email"
+          autocomplete="email"
+          :aria-invalid="Boolean(errors.email)"
+          :aria-describedby="errors.email ? 'err-email' : undefined"
+        />
+        <p v-if="errors.email" id="err-email" class="field-error">{{ errors.email }}</p>
+      </div>
     </div>
 
-    <div class="grid gap-5 sm:grid-cols-[0.8fr_1.2fr]">
-      <label class="grid gap-2 text-sm font-semibold text-navy">
-        Type
-        <select v-model="type" class="focus-ring border border-navy/15 px-4 py-3 font-normal">
-          <option value="general">General</option>
-          <option value="speaking">Speaking</option>
-          <option value="mentorship">Mentorship</option>
-          <option value="research">Research</option>
-          <option value="partnership">Partnership</option>
-          <option value="media">Media</option>
-          <option value="consulting">Consulting</option>
+    <div class="grid gap-8 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+      <div>
+        <label class="field-label" for="contact-type">Nature of enquiry</label>
+        <select
+          id="contact-type"
+          v-model="type"
+          class="field-input mt-2 appearance-none bg-[right_0.25rem_center] bg-no-repeat pr-8"
+          :class="errors.type && 'field-input-invalid'"
+        >
+          <option v-for="option in enquiryTypes" :key="option.value" :value="option.value">{{ option.label }}</option>
         </select>
-        <span v-if="errors.type" class="text-xs text-red-700">{{ errors.type }}</span>
-      </label>
-      <label class="grid gap-2 text-sm font-semibold text-navy">
-        Subject
-        <input v-model="subject" class="focus-ring border border-navy/15 px-4 py-3 font-normal" type="text" />
-        <span v-if="errors.subject" class="text-xs text-red-700">{{ errors.subject }}</span>
-      </label>
+        <p v-if="errors.type" class="field-error">{{ errors.type }}</p>
+      </div>
+
+      <div>
+        <label class="field-label" for="contact-subject">Subject</label>
+        <input
+          id="contact-subject"
+          v-model="subject"
+          class="field-input mt-2"
+          :class="errors.subject && 'field-input-invalid'"
+          type="text"
+          :placeholder="subjectPlaceholder"
+          :aria-invalid="Boolean(errors.subject)"
+          :aria-describedby="errors.subject ? 'err-subject' : undefined"
+        />
+        <p v-if="errors.subject" id="err-subject" class="field-error">{{ errors.subject }}</p>
+      </div>
     </div>
 
-    <label class="grid gap-2 text-sm font-semibold text-navy">
-      Message
-      <textarea v-model="message" class="focus-ring min-h-40 border border-navy/15 px-4 py-3 font-normal" />
-      <span v-if="errors.message" class="text-xs text-red-700">{{ errors.message }}</span>
-    </label>
+    <div>
+      <div class="flex items-baseline justify-between gap-4">
+        <label class="field-label" for="contact-message">Message</label>
+        <span class="text-[0.7rem] tabular-nums text-ink-faint">{{ messageLength }} / 5000</span>
+      </div>
+      <textarea
+        id="contact-message"
+        v-model="message"
+        class="field-input mt-2 min-h-36 resize-y"
+        :class="errors.message && 'field-input-invalid'"
+        :placeholder="messagePlaceholder"
+        :aria-invalid="Boolean(errors.message)"
+        :aria-describedby="errors.message ? 'err-message' : 'hint-message'"
+      />
+      <p v-if="errors.message" id="err-message" class="field-error">{{ errors.message }}</p>
+      <p v-else id="hint-message" class="mt-2 text-[0.78rem] leading-6 text-ink-faint">
+        Context on the audience, timeline, and outcome you have in mind makes a reply far more useful.
+      </p>
+    </div>
 
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-      <BaseButton type="submit" :disabled="isSubmitting">Send enquiry</BaseButton>
-      <p v-if="status" class="text-sm text-forest">{{ status }}</p>
-      <p v-if="serverError" class="text-sm text-red-700">{{ serverError }}</p>
+    <div class="flex flex-col gap-4 border-t border-navy-900/10 pt-7 sm:flex-row sm:items-center sm:justify-between">
+      <BaseButton type="submit" variant="primary" size="lg" :loading="isSubmitting" icon="arrowRight">
+        {{ isSubmitting ? 'Sending' : 'Send enquiry' }}
+      </BaseButton>
+      <p class="text-[0.82rem] leading-6" aria-live="polite">
+        <span v-if="status" class="font-medium text-forest-700">{{ status }}</span>
+        <span v-else-if="serverError" class="font-medium text-red-700">{{ serverError }}</span>
+        <span v-else class="text-ink-faint">Replies usually follow within a few working days.</span>
+      </p>
     </div>
   </form>
 </template>
@@ -51,37 +98,40 @@
 <script setup>
 import { toTypedSchema } from '@vee-validate/zod';
 import { useField, useForm } from 'vee-validate';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { z } from 'zod';
 import { contentApi } from '../../services/contentApi';
 import BaseButton from '../ui/BaseButton.vue';
 
 const props = defineProps({
-  defaultType: {
-    type: String,
-    default: 'general',
-  },
+  defaultType: { type: String, default: 'general' },
+  subjectPlaceholder: { type: String, default: 'A short summary' },
+  messagePlaceholder: { type: String, default: 'Share the purpose, audience, timeline, and any institutional context.' },
 });
+
+const enquiryTypes = [
+  { value: 'general', label: 'General enquiry' },
+  { value: 'speaking', label: 'Speaking invitation' },
+  { value: 'mentorship', label: 'Mentorship' },
+  { value: 'consulting', label: 'Advisory or consulting' },
+  { value: 'research', label: 'Research collaboration' },
+  { value: 'partnership', label: 'Partnership' },
+  { value: 'media', label: 'Media or press' },
+];
 
 const schema = toTypedSchema(
   z.object({
-    name: z.string().min(2, 'Enter your name.'),
-    email: z.string().email('Enter a valid email.'),
-    subject: z.string().min(4, 'Add a short subject.'),
+    name: z.string().min(2, 'Please enter your name.'),
+    email: z.string().min(1, 'Please enter your email address.').email('Please enter a valid email address.'),
+    subject: z.string().min(4, 'Add a short subject line.'),
     type: z.enum(['speaking', 'consulting', 'research', 'partnership', 'media', 'mentorship', 'general']),
-    message: z.string().min(20, 'Share a little more context.').max(5000),
+    message: z.string().min(20, 'A little more context helps — 20 characters or more.').max(5000, 'Please keep this under 5000 characters.'),
   }),
 );
 
 const { errors, handleSubmit, isSubmitting, resetForm, setFieldValue } = useForm({
   validationSchema: schema,
-  initialValues: {
-    name: '',
-    email: '',
-    subject: '',
-    type: props.defaultType,
-    message: '',
-  },
+  initialValues: { name: '', email: '', subject: '', type: props.defaultType, message: '' },
 });
 
 const { value: name } = useField('name');
@@ -91,6 +141,7 @@ const { value: type } = useField('type');
 const { value: message } = useField('message');
 const status = ref('');
 const serverError = ref('');
+const messageLength = computed(() => (message.value || '').length);
 
 watch(
   () => props.defaultType,
@@ -106,7 +157,8 @@ const onSubmit = handleSubmit(async (values) => {
     status.value = 'Thank you. Your message has been received.';
     resetForm({ values: { name: '', email: '', subject: '', type: props.defaultType, message: '' } });
   } catch (error) {
-    serverError.value = error.response?.data?.message || 'Unable to send this message right now.';
+    serverError.value =
+      error.response?.data?.message || 'This message could not be sent right now. Please try again shortly.';
   }
 });
 </script>

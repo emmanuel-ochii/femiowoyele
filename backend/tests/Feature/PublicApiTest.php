@@ -17,9 +17,14 @@ class PublicApiTest extends TestCase
 
         $this->getJson('/api/home')
             ->assertOk()
-            ->assertJsonPath('data.hero.title', 'Femi Owoyele')
+            ->assertJsonPath('data.hero.slug', 'home.hero')
+            ->assertJsonPath('data.hero.meta.image', '/images/femi-portrait.jpg')
             ->assertJsonCount(6, 'data.pillars')
             ->assertJsonPath('data.featured.books.0.slug', 'entrusted');
+
+        // The hero headline is editable copy, so assert it is present rather
+        // than pinning the test to a particular sentence.
+        $this->assertNotEmpty($this->getJson('/api/home')->json('data.hero.title'));
     }
 
     public function test_home_endpoint_returns_valid_shape_before_content_is_seeded(): void

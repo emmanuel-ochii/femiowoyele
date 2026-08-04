@@ -2,27 +2,29 @@
   <div>
     <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p class="eyebrow">CMS Resource</p>
-        <h1 class="mt-3 font-serif text-4xl text-navy">{{ resource.label }}</h1>
+        <p class="eyebrow">Content type</p>
+        <h1 class="display-3 mt-5 text-navy-900">{{ resource.label }}</h1>
       </div>
-      <BaseButton variant="secondary" @click="resetForm">New item</BaseButton>
+      <BaseButton variant="outline" icon="arrowRight" @click="resetForm">New item</BaseButton>
     </div>
 
     <div class="grid gap-8 xl:grid-cols-[1fr_420px]">
-      <div class="overflow-hidden border border-navy/10 bg-white">
-        <div class="border-b border-navy/10 px-5 py-4 text-sm font-semibold text-navy">Existing content</div>
-        <div v-if="loading" class="p-5 text-sm text-ink/60">Loading...</div>
-        <div v-else class="divide-y divide-navy/10">
+      <div class="overflow-hidden border border-navy-900/10 bg-white">
+        <div class="border-b border-navy-900/10 px-5 py-4 text-micro font-semibold uppercase text-ink-faint">Existing content</div>
+        <div v-if="loading" class="space-y-3 p-5">
+          <div v-for="n in 4" :key="n" class="skeleton h-12 w-full"></div>
+        </div>
+        <div v-else class="divide-y divide-navy-900/10">
           <article v-for="item in items" :key="item.id" class="grid gap-3 p-5 md:grid-cols-[1fr_auto] md:items-center">
             <div>
-              <p class="font-semibold text-navy">{{ item.title || item.label || item.name || item.slug || item.text }}</p>
-              <p class="mt-1 line-clamp-2 text-sm leading-6 text-ink/60">{{ item.excerpt || item.description || item.body }}</p>
+              <p class="font-medium text-navy-900">{{ item.title || item.label || item.name || item.slug || item.text }}</p>
+              <p class="mt-1 line-clamp-2 text-sm leading-6 text-ink-muted">{{ item.excerpt || item.description || item.body }}</p>
             </div>
             <div class="flex gap-2">
-              <button class="focus-ring border border-navy/15 px-3 py-2 text-sm font-semibold text-navy" type="button" @click="edit(item)">
+              <button class="border border-navy-900/15 px-3 py-2 text-[0.8rem] font-semibold text-navy-900 transition-colors hover:border-forest-800 hover:text-forest-800" type="button" @click="edit(item)">
                 Edit
               </button>
-              <button class="focus-ring border border-red-200 px-3 py-2 text-sm font-semibold text-red-700" type="button" @click="remove(item)">
+              <button class="border border-red-200 px-3 py-2 text-[0.8rem] font-semibold text-red-700 transition-colors hover:border-red-500 hover:bg-red-50" type="button" @click="remove(item)">
                 Delete
               </button>
             </div>
@@ -30,33 +32,33 @@
         </div>
       </div>
 
-      <form class="border border-navy/10 bg-white p-5" @submit.prevent="save">
-        <h2 class="font-serif text-2xl text-navy">{{ form.id ? 'Edit item' : 'Create item' }}</h2>
-        <div class="mt-5 grid gap-4">
-          <label v-for="[name, type] in resource.fields" :key="name" class="grid gap-2 text-sm font-semibold text-navy">
-            {{ labelFor(name) }}
+      <form class="h-fit border border-navy-900/10 bg-white p-6 xl:sticky xl:top-28" @submit.prevent="save">
+        <h2 class="font-serif text-2xl text-navy-900">{{ form.id ? 'Edit item' : 'Create item' }}</h2>
+        <div class="mt-7 grid gap-6">
+          <label v-for="[name, type] in resource.fields" :key="name" class="grid gap-2">
+            <span class="field-label">{{ labelFor(name) }}</span>
             <textarea
               v-if="type === 'textarea' || type === 'json'"
               v-model="form[name]"
-              class="focus-ring min-h-28 border border-navy/15 px-3 py-2 font-normal"
+              class="field-input min-h-28 resize-y"
             />
             <input
               v-else-if="type === 'checkbox'"
               v-model="form[name]"
-              class="focus-ring h-5 w-5"
+              class="h-5 w-5 accent-forest-800 justify-self-start"
               type="checkbox"
             />
             <input
               v-else
               v-model="form[name]"
-              class="focus-ring border border-navy/15 px-3 py-2 font-normal"
+              class="field-input"
               :type="type"
             />
           </label>
         </div>
-        <p v-if="message" class="mt-4 text-sm text-forest">{{ message }}</p>
-        <p v-if="error" class="mt-4 text-sm text-red-700">{{ error }}</p>
-        <div class="mt-6 flex gap-3">
+        <p v-if="message" class="mt-5 text-sm font-medium text-forest-700" role="status">{{ message }}</p>
+        <p v-if="error" class="mt-5 text-sm font-medium text-red-700" role="alert">{{ error }}</p>
+        <div class="mt-8 flex flex-wrap gap-x-6 gap-y-3">
           <BaseButton type="submit">{{ form.id ? 'Update' : 'Create' }}</BaseButton>
           <BaseButton variant="ghost" type="button" @click="resetForm">Clear</BaseButton>
         </div>
