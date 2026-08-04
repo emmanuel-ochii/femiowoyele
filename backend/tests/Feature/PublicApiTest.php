@@ -22,6 +22,17 @@ class PublicApiTest extends TestCase
             ->assertJsonPath('data.featured.books.0.slug', 'entrusted');
     }
 
+    public function test_home_endpoint_returns_valid_shape_before_content_is_seeded(): void
+    {
+        $this->getJson('/api/home')
+            ->assertOk()
+            ->assertJsonPath('data.hero.title', null)
+            ->assertJsonPath('data.quote.text', null)
+            ->assertJsonCount(0, 'data.pillars')
+            ->assertJsonCount(0, 'data.featured.articles')
+            ->assertJsonCount(0, 'data.impact_metrics');
+    }
+
     public function test_research_ideas_can_be_filtered_by_category(): void
     {
         $this->seed();

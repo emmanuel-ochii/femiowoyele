@@ -9,6 +9,15 @@ class QuoteResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        if ($this->resource === null) {
+            return [
+                'id' => null,
+                'text' => null,
+                'source' => null,
+                'is_active' => false,
+            ];
+        }
+
         return [
             'id' => $this->id,
             'text' => $this->text,

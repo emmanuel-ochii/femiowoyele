@@ -809,6 +809,123 @@ Check:
 - `/admin` loads.
 - Browser developer tools do not show API URL errors.
 
+## Current Domain Alignment Checklist
+
+Use this checklist when the temporary Railway domains are already live but the frontend is not showing CMS content.
+
+Current temporary domains:
+
+```text
+Backend:
+https://backend-production-8412.up.railway.app
+
+Frontend:
+https://frontend-production-b86a.up.railway.app
+```
+
+Desired production domains:
+
+```text
+Backend API:
+https://api.femiowoyele.com
+
+Frontend website:
+https://femiowoyele.com
+https://www.femiowoyele.com
+```
+
+### What The Current Symptom Means
+
+If this URL returns the frontend HTML instead of JSON:
+
+```text
+https://frontend-production-b86a.up.railway.app/api/health
+```
+
+that is expected for the production frontend container. The Railway frontend is a static site served by Caddy. It does not proxy `/api` the way local Vite does.
+
+The production frontend must be built with an absolute API URL:
+
+```dotenv
+VITE_API_BASE_URL=https://api.femiowoyele.com/api
+```
+
+Until the custom API domain is verified, use the temporary backend URL:
+
+```dotenv
+VITE_API_BASE_URL=https://backend-production-8412.up.railway.app/api
+```
+
+After changing `VITE_API_BASE_URL`, redeploy the frontend. Vite embeds this value during the build, so changing it without redeploying will not affect the live JavaScript bundle.
+
+### Verify The Backend Has Content
+
+Run these checks in your browser:
+
+```text
+https://backend-production-8412.up.railway.app/api/health
+https://backend-production-8412.up.railway.app/api/home
+https://backend-production-8412.up.railway.app/api/pillars
+```
+
+Expected:
+
+- `/api/health` returns status `ok`.
+- `/api/home` returns JSON, not `Server Error`.
+- `/api/pillars` returns the starter pillar records, not an empty `[]`.
+
+If `/api/pillars` returns an empty array, the production database has migrations but no CMS starter content yet.
+
+Run the seed step once:
+
+```bash
+php artisan db:seed --force
+```
+
+After seeding, immediately change the temporary admin password or replace the seeded admin with a secure production admin account.
+
+### Temporary Testing Variables
+
+While only the Railway-generated frontend domain is active, backend CORS must temporarily allow that frontend origin.
+
+Backend service variables:
+
+```dotenv
+APP_URL=https://backend-production-8412.up.railway.app
+FRONTEND_URL=https://frontend-production-b86a.up.railway.app
+CORS_ALLOWED_ORIGINS=https://frontend-production-b86a.up.railway.app
+SANCTUM_STATEFUL_DOMAINS=frontend-production-b86a.up.railway.app,backend-production-8412.up.railway.app
+```
+
+Frontend service variables:
+
+```dotenv
+VITE_API_BASE_URL=https://backend-production-8412.up.railway.app/api
+```
+
+Redeploy backend first, then redeploy frontend.
+
+### Final Production Variables
+
+After Railway verifies `api.femiowoyele.com`, `femiowoyele.com`, and optionally `www.femiowoyele.com`, update the variables to final production values.
+
+Backend service variables:
+
+```dotenv
+APP_URL=https://api.femiowoyele.com
+FRONTEND_URL=https://femiowoyele.com
+CORS_ALLOWED_ORIGINS=https://femiowoyele.com,https://www.femiowoyele.com
+SANCTUM_STATEFUL_DOMAINS=femiowoyele.com,www.femiowoyele.com,api.femiowoyele.com
+```
+
+Frontend service variables:
+
+```dotenv
+VITE_API_BASE_URL=https://api.femiowoyele.com/api
+```
+
+Redeploy backend first, then redeploy frontend.
+
 ## Phase 6: Seed Initial Content
 
 The first deployment runs migrations but does not automatically seed starter content.
