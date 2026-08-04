@@ -62,6 +62,7 @@ backend/railway.json
 
 backend/railway/init-app.sh
   Runs optimize:clear, migrations, config cache, event cache, and view cache.
+  It also prints safe diagnostics so Railway pre-deploy failures are easier to understand.
 
 backend/railway/run-worker.sh
   Runs a Laravel queue worker. Use later when queues become important.
@@ -146,6 +147,7 @@ For a Nigeria/Africa-facing audience, start with Railway's EU West / Amsterdam r
 - Do not use Namecheap shared hosting for this Railway deployment.
 - Do not use Namecheap masked redirects.
 - Do not delete Namecheap MX/email records unless you intentionally want to break domain email.
+- Railway deploys from GitHub, not from your local machine. Commit and push Railway files before expecting Railway to see them.
 
 ## Phase 1: Prepare The Repository
 
@@ -171,6 +173,15 @@ git push origin main
 ```
 
 Only deploy from a commit that exists on GitHub.
+
+If Railway shows this error:
+
+```text
+Deploy > Pre deploy command
+Pre-deploy command failed
+```
+
+and the deploy logs say the script cannot be found, the usual cause is that `backend/railway/init-app.sh` was not committed and pushed before Railway deployed.
 
 ### Step 2: Confirm Local Tests Pass
 
@@ -438,12 +449,12 @@ FILESYSTEM_DISK=local
 QUEUE_CONNECTION=database
 CACHE_STORE=database
 
-MAIL_MAILER=log
-MAIL_HOST=127.0.0.1
-MAIL_PORT=2525
-MAIL_USERNAME=null
-MAIL_PASSWORD=null
-MAIL_ENCRYPTION=null
+MAIL_MAILER=smtp
+MAIL_SCHEME=smtp
+MAIL_HOST=smtp.resend.com
+MAIL_PORT=587
+MAIL_USERNAME=resend
+MAIL_PASSWORD=REPLACE_WITH_RESEND_API_KEY
 MAIL_FROM_ADDRESS=hello@femiowoyele.com
 MAIL_FROM_NAME="${APP_NAME}"
 
@@ -465,7 +476,8 @@ Important notes:
 
 - `DB_URL=${{MySQL.MYSQL_URL}}` references the MySQL service.
 - If you rename the database service from `MySQL` to something else, update the reference.
-- `MAIL_MAILER=log` is safe for launch, but real email delivery needs SMTP variables later.
+- `MAIL_PASSWORD` is your Resend API key, usually starting with `re_`.
+- `MAIL_SCHEME=smtp` plus port `587` uses STARTTLS with Resend SMTP.
 - `FILESYSTEM_DISK=local` is acceptable until CMS media uploads matter.
 - Railway filesystems are ephemeral for app services, so production media should eventually use S3-compatible storage.
 
@@ -529,6 +541,107 @@ Expected response:
 ```
 
 Do not continue to frontend deployment until the backend health endpoint works.
+
+### If Backend Pre-Deploy Fails
+
+If Railway shows:
+
+```text
+Deploy > Pre deploy command
+Pre-deploy command failed
+```
+
+do this before changing random settings:
+
+1. Open the failed backend deployment in Railway.
+2. Open `Deploy Logs`.
+3. Expand or scroll to the `Pre-deploy command` section.
+4. Copy the last 30 to 50 lines of the log.
+5. Match the real error below.
+
+Common causes and fixes:
+
+```text
+sh: can't open './railway/init-app.sh': No such file
+```
+
+Fix:
+
+- Confirm the backend root directory is `/backend`.
+- Confirm pre-deploy command is `sh ./railway/init-app.sh`.
+- Confirm `backend/railway/init-app.sh` exists in GitHub, not only on your Mac.
+- Commit and push the Railway files.
+- Redeploy.
+
+```text
+APP_KEY is missing
+No application encryption key has been specified
+```
+
+Fix:
+
+- Generate an app key locally:
+
+```bash
+cd backend
+php artisan key:generate --show
+```
+
+- Add it to backend service variables as `APP_KEY`.
+- Redeploy.
+
+```text
+SQLSTATE[HY000] [2002]
+Connection refused
+php_network_getaddresses
+Access denied for user
+Unknown database
+```
+
+Fix:
+
+- Confirm the Railway MySQL service is deployed and healthy.
+- Confirm backend and MySQL are in the same Railway environment.
+- Confirm backend has:
+
+```dotenv
+DB_CONNECTION=mysql
+DB_URL=${{MySQL.MYSQL_URL}}
+```
+
+- If your MySQL service is not named `MySQL`, update the reference to match the real service name.
+- Redeploy backend.
+
+```text
+Base table or view already exists
+Duplicate column name
+```
+
+Fix:
+
+- This usually means a migration partially ran before failing.
+- Do not drop the production database casually.
+- Inspect the migration log and database state first.
+- If this is a brand-new empty Railway database with no real data, it is usually safe to reset the database service and redeploy.
+- If there is real data, create a corrective migration instead of deleting tables.
+
+Temporary diagnostic bypass:
+
+```dotenv
+RAILWAY_SKIP_MIGRATIONS=true
+```
+
+Add that only if you need to prove the service can boot without running migrations. Remove it after the database issue is fixed, then redeploy so migrations run properly.
+
+The improved `backend/railway/init-app.sh` prints safe markers like:
+
+```text
+[railway:init] Starting Laravel pre-deploy tasks
+[railway:init] Running database migrations
+[railway:init] Rebuilding Laravel caches
+```
+
+Use the last marker printed before failure to identify which step failed.
 
 ## Phase 5: Deploy The Frontend Service
 
@@ -816,6 +929,7 @@ Only change web records for:
 www
 api
 Railway verification TXT hosts
+Resend SPF/DKIM/MX/DMARC hosts
 ```
 
 ### Step 3: Remove Conflicting Web Records
@@ -838,7 +952,70 @@ Remove old/conflicting records for the same host if they point to:
 
 Do not remove records unless you are sure they are for web routing.
 
-### Step 4: Add API Domain Records
+### Step 4: Add Resend Email DNS Records
+
+You said you will use Resend for mailing.
+
+In Resend:
+
+1. Open the Resend dashboard.
+2. Go to `Domains`.
+3. Add the sending domain.
+
+Recommended simple choice:
+
+```text
+femiowoyele.com
+```
+
+This lets the app send from:
+
+```text
+hello@femiowoyele.com
+```
+
+Resend recommends subdomains for sending reputation isolation. If you prefer that approach, add a subdomain such as:
+
+```text
+mail.femiowoyele.com
+```
+
+Then use a sender like:
+
+```text
+hello@mail.femiowoyele.com
+```
+
+For the first launch, `hello@femiowoyele.com` is simpler and more natural for a public contact form.
+
+After adding the domain, Resend will show DNS records. Copy them exactly. They usually include SPF, DKIM, and MX records, and Resend may also recommend DMARC.
+
+In Namecheap:
+
+1. Go to `Domain List`.
+2. Click `Manage` next to `femiowoyele.com`.
+3. Open `Advanced DNS`.
+4. Add the Resend records exactly as Resend shows them.
+5. Use `Automatic` TTL.
+6. Save changes.
+
+Important Namecheap rules:
+
+- Namecheap often appends `femiowoyele.com` automatically.
+- If Resend gives `send.femiowoyele.com`, the Namecheap host may be `send`.
+- If Resend gives `resend._domainkey.femiowoyele.com`, the Namecheap host may be `resend._domainkey`.
+- If a value is a full hostname and Namecheap appends your domain incorrectly, add a trailing dot to the value if Namecheap/Resend troubleshooting indicates it is needed.
+- Do not overwrite existing root SPF records blindly. A domain should usually have one SPF TXT record per hostname, so merge values carefully if the same host already has SPF.
+- Keep existing MX records for receiving email unless Resend specifically tells you to add an MX record on a Resend-managed subdomain such as `send`.
+
+Back in Resend:
+
+1. Click `Verify DNS Records`.
+2. Wait for verification.
+3. Resend says verification often completes quickly when records are correct, but DNS can take up to 72 hours.
+4. Do not switch Railway mail to Resend until the Resend domain is verified.
+
+### Step 5: Add API Domain Records
 
 Use the exact records shown by Railway for:
 
@@ -876,7 +1053,7 @@ Namecheap Host may need:
 
 Namecheap usually appends the domain automatically. If unsure, compare with Namecheap's TXT/CNAME instructions or ask Namecheap support.
 
-### Step 5: Add Frontend Root Domain Records
+### Step 6: Add Frontend Root Domain Records
 
 Use the exact records Railway gives for:
 
@@ -916,7 +1093,7 @@ Important:
 - Namecheap supports `ALIAS` records for root-domain aliasing.
 - Railway's dashboard output is the source of truth.
 
-### Step 6: Add Optional www Records
+### Step 7: Add Optional www Records
 
 If you added `www.femiowoyele.com` as a frontend custom domain in Railway, add the Railway records in Namecheap.
 
@@ -931,7 +1108,7 @@ TTL:   Automatic
 
 Add the Railway TXT verification record too.
 
-### Step 7: Save All Changes
+### Step 8: Save All Changes
 
 In Namecheap:
 
@@ -1235,28 +1412,88 @@ Railway app service filesystems are not a long-term media storage strategy.
 
 ## Email Setup
 
-The launch-safe placeholder is:
+This project should use Resend through SMTP for the first production deployment. That works with Laravel's existing SMTP mailer and does not require adding a new Composer package.
 
-```dotenv
-MAIL_MAILER=log
-```
+Important application note:
 
-This does not send email.
+- These variables prepare the Laravel backend to send through Resend.
+- The current contact endpoint stores contact messages in the database.
+- Actual outgoing notification emails require the application code to call Laravel Mail or Notifications.
+- Once that code is added, it will use the Resend SMTP settings below automatically.
 
-For production contact form emails, configure SMTP:
+### Resend SMTP Variables For Railway
+
+In the Railway backend service variables, use:
 
 ```dotenv
 MAIL_MAILER=smtp
-MAIL_HOST=your-smtp-host
+MAIL_SCHEME=smtp
+MAIL_HOST=smtp.resend.com
 MAIL_PORT=587
-MAIL_USERNAME=your-smtp-username
-MAIL_PASSWORD=your-smtp-password
-MAIL_ENCRYPTION=tls
+MAIL_USERNAME=resend
+MAIL_PASSWORD=REPLACE_WITH_RESEND_API_KEY
 MAIL_FROM_ADDRESS=hello@femiowoyele.com
 MAIL_FROM_NAME="FemiOwoyele.com"
 ```
 
-If using domain email, keep Namecheap MX/SPF/DKIM/DMARC records intact.
+Replace:
+
+```text
+REPLACE_WITH_RESEND_API_KEY
+  Your Resend API key.
+```
+
+Resend SMTP credentials:
+
+```text
+Host:     smtp.resend.com
+Port:     587
+Username: resend
+Password: your Resend API key
+Security: STARTTLS
+```
+
+The project's Laravel `config/mail.php` reads `MAIL_SCHEME`, not `MAIL_ENCRYPTION`, for SMTP configuration. Use `MAIL_SCHEME=smtp` with port `587`.
+
+### Resend Domain Setup
+
+In Resend:
+
+1. Add `femiowoyele.com` as a domain if you want to send from `hello@femiowoyele.com`.
+2. Copy the SPF, DKIM, and MX records Resend gives you.
+3. Add those records in Namecheap Advanced DNS.
+4. Optionally add DMARC:
+
+```text
+Type:  TXT
+Host:  _dmarc
+Value: v=DMARC1; p=none; rua=mailto:hello@femiowoyele.com;
+TTL:   Automatic
+```
+
+Start DMARC with `p=none` so you can monitor without accidentally rejecting legitimate email.
+
+### Optional Future Resend Laravel Driver
+
+Laravel's mail config includes a `resend` mailer entry, but this repository does not currently require the Resend Laravel package. If you want the API-driver approach later, add:
+
+```bash
+cd backend
+composer require resend/resend-laravel
+```
+
+Then Railway backend variables would use:
+
+```dotenv
+MAIL_MAILER=resend
+RESEND_API_KEY=REPLACE_WITH_RESEND_API_KEY
+MAIL_FROM_ADDRESS=hello@femiowoyele.com
+MAIL_FROM_NAME="FemiOwoyele.com"
+```
+
+For now, SMTP is simpler and production-ready.
+
+If using domain email for receiving mail, keep Namecheap MX/SPF/DKIM/DMARC records intact.
 
 ## Performance Checklist
 
@@ -1330,6 +1567,24 @@ Check:
 - MySQL service is deployed and healthy.
 - Backend and MySQL are in the same environment.
 - The MySQL service is named `MySQL`, or the variable reference matches the real service name.
+
+### Deploy Shows Only "Pre-Deploy Command Failed"
+
+The screenshot below is Railway's summary state, not the real error:
+
+```text
+Deploy > Pre deploy command
+Pre-deploy command failed
+```
+
+Open the failed deployment logs and inspect the actual pre-deploy output. The most common fixes are:
+
+- Commit and push `backend/railway/init-app.sh` if the log says the script is missing.
+- Set `APP_KEY` if Laravel says the encryption key is missing.
+- Set `DB_URL=${{MySQL.MYSQL_URL}}` if migrations cannot connect to MySQL.
+- Check the MySQL service name if the `DB_URL` reference is not resolving.
+- Wait for MySQL to finish deploying before redeploying the backend.
+- Temporarily set `RAILWAY_SKIP_MIGRATIONS=true` only to confirm the app can boot without migrations, then remove it and fix the database issue.
 
 ### Backend Healthcheck Fails
 
@@ -1430,7 +1685,15 @@ Check:
 
 If `MAIL_MAILER=log`, this is expected.
 
-Set real SMTP variables before expecting email delivery.
+For Resend, confirm:
+
+- Resend domain is verified.
+- Railway backend has `MAIL_MAILER=smtp`.
+- Railway backend has `MAIL_HOST=smtp.resend.com`.
+- Railway backend has `MAIL_USERNAME=resend`.
+- Railway backend has `MAIL_PASSWORD` set to your Resend API key.
+- `MAIL_FROM_ADDRESS` uses a verified domain.
+- Backend was redeployed after changing mail variables.
 
 ## Namecheap-Specific Notes
 
@@ -1502,3 +1765,8 @@ After first successful Railway deployment:
 - Namecheap TXT records: https://www.namecheap.com/support/knowledgebase/article.aspx/317/2237/how-do-i-add-txtspfdkimdmarc-records-for-my-domain/
 - Namecheap ALIAS records: https://www.namecheap.com/support/knowledgebase/article.aspx/10128/2237/how-to-create-an-alias-record/
 - Namecheap URL redirects: https://www.namecheap.com/support/knowledgebase/article.aspx/385/2237/how-to-set-up-a-url-redirect-for-a-domain/
+- Resend SMTP: https://resend.com/docs/send-with-smtp
+- Resend Laravel: https://resend.com/docs/send-with-laravel
+- Resend domain management: https://resend.com/docs/dashboard/domains/introduction
+- Resend domain verification troubleshooting: https://resend.com/docs/knowledge-base/what-if-my-domain-is-not-verifying
+- Resend DMARC: https://resend.com/docs/dashboard/domains/dmarc
