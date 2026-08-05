@@ -90,7 +90,7 @@ const title = computed(() => event.value.title || 'Entrusted');
 const occasion = computed(() => meta.value.occasion || '');
 const bookSlug = computed(() => meta.value.book_slug || 'entrusted');
 
-const heading = computed(() => 'An evening of gratitude and new beginnings.');
+const heading = computed(() => 'An evening of gratitude and great beginnings.');
 const intro = computed(
   () =>
     `Join Femi Owoyele for his fortieth birthday and the unveiling of ${title.value}, his first book. Kindly let us know whether you can be with us.`,

@@ -105,7 +105,7 @@
           <p class="eyebrow">The evening</p>
           <h2 class="display-3 mt-6 text-balance text-navy-900">Where and when</h2>
           <p class="body-copy mt-5">
-            An evening of gratitude and new beginnings, with family, friends, mentors, and the builders who have shaped
+            An evening of gratitude and great beginnings, with family, friends, mentors, and the builders who have shaped
             the work — closing with the first public reading from {{ title }}.
           </p>
         </div>

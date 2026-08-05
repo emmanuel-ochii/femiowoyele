@@ -412,7 +412,7 @@ class DatabaseSeeder extends Seeder
                     // section stops speaking in the future tense on its own.
                     'body_after' => 'Entrusted was unveiled on the evening of Femi Owoyele\'s fortieth birthday, before family, friends, mentors, and the builders who have shaped the work. The two occasions belonged together: forty years of being formed, and a book about what it means to be handed something worth keeping.',
                     'occasion' => 'Celebrating Forty Years',
-                    'tagline' => 'An evening of gratitude and new beginnings',
+                    'tagline' => 'An evening of gratitude and great beginnings',
                     'subtitle' => 'Lessons, responsibilities and truths for a life of legacy',
                     // ISO-8601 with the West Africa Time offset — the countdown and
                     // the "already launched" state are both derived from this.
