@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Rsvp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class RsvpTest extends TestCase
@@ -24,6 +25,22 @@ class RsvpTest extends TestCase
             ->assertJsonPath('meta.updated', false);
 
         $this->assertDatabaseHas('rsvps', ['email' => 'ada@example.com', 'attending' => true]);
+    }
+
+    public function test_browser_origin_rsvp_does_not_require_a_csrf_cookie(): void
+    {
+        Mail::fake();
+
+        $this->postJson('/api/rsvp', [
+            'name' => 'Ada Builder',
+            'email' => 'ada@example.com',
+            'attending' => true,
+            'guests' => 1,
+        ], [
+            'Origin' => 'https://www.femiowoyele.com',
+        ])
+            ->assertCreated()
+            ->assertJsonPath('data.email', 'ada@example.com');
     }
 
     public function test_resubmitting_updates_the_existing_answer_rather_than_duplicating(): void
