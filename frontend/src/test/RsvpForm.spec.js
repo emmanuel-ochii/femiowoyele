@@ -29,6 +29,11 @@ const chooseAttending = async (wrapper, attending) => {
 describe('RsvpForm', () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it('warns that the event is adults only', () => {
+    const wrapper = mount(RsvpForm);
+    expect(wrapper.text()).toContain('adults-only event');
+  });
+
   it('mirrors the three questions from the original Google Form', () => {
     const wrapper = mount(RsvpForm);
 
@@ -66,7 +71,8 @@ describe('RsvpForm', () => {
       guests: 2,
       note: null,
     });
-    expect(wrapper.text()).toContain('your seat is reserved');
+    expect(wrapper.text()).toContain('Thank you for your RSVP.');
+    expect(wrapper.text()).toContain('I look forward to celebrating this special milestone with you');
   });
 
   it('sends no guest count when the answer is a decline', async () => {
@@ -82,7 +88,7 @@ describe('RsvpForm', () => {
       '/rsvp',
       expect.objectContaining({ attending: false, guests: 0 }),
     );
-    expect(wrapper.text()).toContain('Thank you for letting us know.');
+    expect(wrapper.text()).toContain('Although I will miss celebrating with you in person');
   });
 
   it('tells a returning guest their answer was updated', async () => {

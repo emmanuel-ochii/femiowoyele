@@ -29,6 +29,16 @@
   </div>
 
   <form v-else class="grid gap-8" novalidate @submit="onSubmit">
+    <!-- Placed before the fields so it is read before anyone answers. -->
+    <p
+      :class="[
+        'border-l-2 px-4 py-3 text-[0.875rem] font-medium leading-6',
+        dark ? 'border-red-400 bg-red-400/10 text-red-300' : 'border-red-600 bg-red-50 text-red-700',
+      ]"
+    >
+      Please note: this is an adults-only event. We kindly ask that you respect this information.
+    </p>
+
     <div class="grid gap-8 sm:grid-cols-2">
       <div>
         <label class="field-label" for="rsvp-name">Full name</label>
@@ -190,19 +200,21 @@ const { value: note } = useField('note');
 const serverError = ref('');
 const submitted = ref(null);
 
+// Deliberately the same wording the guest receives by email, so the screen and
+// the inbox say the same thing.
+const RESPONSES = {
+  attending:
+    'Thank you for confirming your attendance. I look forward to celebrating this special milestone with you and truly appreciate your time and presence.',
+  declined:
+    'Thank you for letting me know. Although I will miss celebrating with you in person, I sincerely appreciate your kind consideration and wish you all the best.',
+};
+
 const confirmation = computed(() => {
   if (!submitted.value) return { title: '', body: '' };
 
-  if (submitted.value.attending) {
-    return {
-      title: submitted.value.updated ? 'Your RSVP is updated.' : 'Thank you — your seat is reserved.',
-      body: 'A confirmation with arrival details will follow by email closer to the evening. We look forward to seeing you.',
-    };
-  }
-
   return {
-    title: submitted.value.updated ? 'Your RSVP is updated.' : 'Thank you for letting us know.',
-    body: 'You will be missed. We will make sure news of the book reaches you after the evening.',
+    title: submitted.value.updated ? 'Your RSVP is updated.' : 'Thank you for your RSVP.',
+    body: submitted.value.attending ? RESPONSES.attending : RESPONSES.declined,
   };
 });
 

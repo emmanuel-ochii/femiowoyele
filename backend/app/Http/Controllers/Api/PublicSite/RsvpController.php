@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\PublicSite;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RsvpRequest;
 use App\Http\Resources\RsvpResource;
+use App\Mail\RsvpConfirmation;
 use App\Mail\RsvpSubmitted;
 use App\Models\Rsvp;
 use App\Support\Notifier;
@@ -39,6 +40,7 @@ class RsvpController extends Controller
         $wasUpdated = ! $rsvp->wasRecentlyCreated;
 
         Notifier::send(new RsvpSubmitted($rsvp, $wasUpdated));
+        Notifier::sendTo($rsvp->email, new RsvpConfirmation($rsvp));
 
         return response()->json([
             'data' => new RsvpResource($rsvp),

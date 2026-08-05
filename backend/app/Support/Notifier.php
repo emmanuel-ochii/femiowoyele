@@ -43,4 +43,30 @@ class Notifier
             return false;
         }
     }
+
+    /**
+     * Delivers a mailable to a member of the public (an RSVP acknowledgement,
+     * for instance). Best-effort for the same reason: their submission is
+     * already stored, so a provider failure must not surface as an error.
+     */
+    public static function sendTo(string $email, Mailable $mailable): bool
+    {
+        if (blank($email)) {
+            return false;
+        }
+
+        try {
+            Mail::to($email)->send($mailable);
+
+            return true;
+        } catch (Throwable $exception) {
+            Log::error('Guest email failed to send.', [
+                'mailable' => $mailable::class,
+                'recipient' => $email,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
 }
