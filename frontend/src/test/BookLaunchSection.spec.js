@@ -18,7 +18,7 @@ const launchBlock = (startsAt) => ({
   title: 'Entrusted',
   body: 'On the evening of his fortieth birthday, Femi Owoyele will unveil his first book.',
   meta: {
-    occasion: 'Golden Reflections · Celebrating Forty Years',
+    occasion: 'Celebrating Forty Years',
     subtitle: 'Lessons, responsibilities and truths for a life of legacy',
     starts_at: startsAt,
     date_label: 'Tuesday, 18 August 2026',
@@ -65,8 +65,10 @@ describe('BookLaunchSection', () => {
     // 4 Aug 12:00 -> 18 Aug 16:00 is 14 days and 4 hours.
     expect(text).toMatch(/14\s*Days/);
     expect(text).toMatch(/4\s*Hours/);
-    // The section is a homepage teaser for the dedicated launch page.
+    // Before the evening the section drives RSVPs, with the story one click away.
+    expect(text).toContain('RSVP for the evening');
     expect(text).toContain('See the launch details');
+    expect(wrapper.find('a[href="/rsvp"]').exists()).toBe(true);
     expect(wrapper.find('a[href="/entrusted"]').exists()).toBe(true);
   });
 
@@ -79,12 +81,15 @@ describe('BookLaunchSection', () => {
     expect(text).not.toContain('Counting down');
     // The call to action re-words itself once the evening has happened.
     expect(text).toContain('Read about the evening');
-    expect(text).not.toContain('See the launch details');
+    expect(text).not.toContain('RSVP for the evening');
+    expect(wrapper.find('a[href="/rsvp"]').exists()).toBe(false);
   });
 
   it('only renders an RSVP line when a phone number is published', async () => {
+    // Assert on the tel: link, not the word "RSVP" — the section's own call to
+    // action legitimately uses that word.
     const withoutPhone = await mountSection(launchBlock('2026-08-18T16:00:00+01:00'));
-    expect(withoutPhone.text()).not.toContain('RSVP');
+    expect(withoutPhone.find('a[href^="tel:"]').exists()).toBe(false);
 
     const block = launchBlock('2026-08-18T16:00:00+01:00');
     block.meta.rsvp_phone = '0903 495 8461';

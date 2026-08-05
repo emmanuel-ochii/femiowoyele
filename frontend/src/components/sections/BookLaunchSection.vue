@@ -90,10 +90,14 @@
           </dl>
 
           <div v-reveal="260" class="mt-11 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-            <BaseButton to="/entrusted" variant="gold" size="lg" icon="arrowRight">
-              {{ hasPassed ? 'Read about the evening' : 'See the launch details' }}
+            <!-- Before the evening the useful action is to RSVP; afterwards it
+                 is to read what happened. -->
+            <BaseButton :to="hasPassed ? '/entrusted' : '/rsvp'" variant="gold" size="lg" icon="arrowRight">
+              {{ hasPassed ? 'Read about the evening' : 'RSVP for the evening' }}
             </BaseButton>
-            <BaseButton :to="`/books/${bookSlug}`" variant="outline-light" size="lg">About the book</BaseButton>
+            <BaseButton :to="hasPassed ? `/books/${bookSlug}` : '/entrusted'" variant="outline-light" size="lg">
+              {{ hasPassed ? 'About the book' : 'See the launch details' }}
+            </BaseButton>
             <BaseButton v-if="rsvpPhone" :href="`tel:${rsvpPhone.replace(/\s+/g, '')}`" variant="ghost-light" size="lg">
               RSVP {{ rsvpPhone }}
             </BaseButton>

@@ -1,5 +1,16 @@
 export const adminResources = [
   {
+    slug: 'rsvps',
+    label: 'Launch RSVPs',
+    fields: [
+      ['name', 'text'],
+      ['email', 'text'],
+      ['attending', 'checkbox'],
+      ['guests', 'number'],
+      ['note', 'textarea'],
+    ],
+  },
+  {
     slug: 'articles',
     label: 'Articles',
     fields: [

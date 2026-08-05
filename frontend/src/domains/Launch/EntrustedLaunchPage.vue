@@ -153,8 +153,8 @@
           <p class="eyebrow !text-gold-400">Request an invitation</p>
           <h2 class="display-3 mt-6 text-balance text-white">Seats are limited.</h2>
           <p class="mt-5 text-[0.95rem] leading-7 text-white/65">
-            The evening is an intimate one. Send your name and how you know Femi, and the team will confirm your place
-            and share the arrival details.
+            The evening is an intimate one. Confirm your name and whether you can join us, and the team will hold your
+            place and send the arrival details.
           </p>
 
           <div v-if="rsvpPhone" class="mt-10 border-t border-white/15 pt-6">
@@ -170,14 +170,7 @@
 
         <div v-reveal="80" class="lg:col-span-7">
           <div class="border border-white/15 bg-navy-950/45 p-7 sm:p-10">
-            <ContactForm
-              default-type="launch"
-              submit-variant="gold"
-              submit-label="Send RSVP"
-              :subject-placeholder="`RSVP — ${title} launch`"
-              message-placeholder="Your name, how you know Femi, and how many seats you are requesting."
-              message-hint="Let us know how many seats you need so the team can confirm your place."
-            />
+            <RsvpForm dark />
           </div>
         </div>
       </div>
@@ -198,7 +191,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import ContactForm from '../../components/forms/ContactForm.vue';
+import RsvpForm from '../../components/forms/RsvpForm.vue';
 import CtaBand from '../../components/sections/CtaBand.vue';
 import ProseBody from '../../components/sections/ProseBody.vue';
 import AppIcon from '../../components/ui/AppIcon.vue';

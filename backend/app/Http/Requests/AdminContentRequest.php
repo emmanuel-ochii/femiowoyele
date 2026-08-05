@@ -74,6 +74,13 @@ class AdminContentRequest extends FormRequest
                 'thumbnail_path' => ['nullable', 'string', 'max:255'],
                 'published_at' => ['nullable', 'date'],
             ],
+            'rsvps' => [
+                'name' => ['required', 'string', 'max:120'],
+                'email' => ['required', 'email', 'max:180', Rule::unique('rsvps', 'email')->ignore($id)],
+                'attending' => ['required', 'boolean'],
+                'guests' => ['nullable', 'integer', 'min:0', 'max:10'],
+                'note' => ['nullable', 'string', 'max:1000'],
+            ],
             'impact-metrics' => [
                 'slug' => ['required', 'string', 'max:180', Rule::unique('impact_metrics', 'slug')->ignore($id)],
                 'label' => ['required', 'string', 'max:160'],

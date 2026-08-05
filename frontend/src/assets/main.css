@@ -208,22 +208,68 @@
     @apply border-white/15;
   }
 
-  .on-dark .form-note,
-  .on-dark .form-note .text-ink-faint {
-    @apply text-white/50;
-  }
-
-  .on-dark .form-note .text-forest-700 {
-    @apply text-gold-300;
-  }
-
-  .on-dark .form-note .text-red-700 {
-    @apply text-red-300;
-  }
-
   .on-dark .field-error {
     @apply text-red-300;
   }
+
+  /* Semantic hooks for form status text. Targeting the colour utilities by name
+     instead would make `@apply` circular, since those same utilities are what
+     the light defaults are built from. */
+  .form-note-muted {
+    @apply text-ink-faint;
+  }
+
+  .form-note-success {
+    @apply font-medium text-forest-700;
+  }
+
+  .form-note-error {
+    @apply font-medium text-red-700;
+  }
+
+  .on-dark .form-note-muted {
+    @apply text-white/50;
+  }
+
+  .on-dark .form-note-success {
+    @apply text-gold-300;
+  }
+
+  .on-dark .form-note-error {
+    @apply text-red-300;
+  }
+
+  /* A light panel nested inside a dark section (an RSVP card on a navy page)
+     wins the light styles back. Declared after `.on-dark` so it takes
+     precedence at equal specificity. */
+  .on-light .field-input {
+    @apply border-navy-200 text-navy-900 hover:border-navy-300 focus:border-forest-700;
+  }
+
+  .on-light .field-label {
+    @apply text-ink-faint;
+  }
+
+  .on-light .form-divider {
+    @apply border-navy-900/10;
+  }
+
+  .on-light .field-error {
+    @apply text-red-700;
+  }
+
+  .on-light .form-note-muted {
+    @apply text-ink-faint;
+  }
+
+  .on-light .form-note-success {
+    @apply text-forest-700;
+  }
+
+  .on-light .form-note-error {
+    @apply text-red-700;
+  }
+
 
   /* ------------------------------------------------------------- ornaments */
   .hairline {

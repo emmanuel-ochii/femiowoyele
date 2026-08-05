@@ -77,7 +77,7 @@
         :aria-describedby="errors.message ? 'err-message' : 'hint-message'"
       />
       <p v-if="errors.message" id="err-message" class="field-error">{{ errors.message }}</p>
-      <p v-else id="hint-message" class="form-note mt-2 text-[0.78rem] leading-6 text-ink-faint">
+      <p v-else id="hint-message" class="form-note-muted mt-2 text-[0.78rem] leading-6">
         {{ messageHint }}
       </p>
     </div>
@@ -87,9 +87,9 @@
         {{ isSubmitting ? 'Sending' : submitLabel }}
       </BaseButton>
       <p class="form-note text-[0.82rem] leading-6" aria-live="polite">
-        <span v-if="status" class="font-medium text-forest-700">{{ status }}</span>
-        <span v-else-if="serverError" class="font-medium text-red-700">{{ serverError }}</span>
-        <span v-else class="text-ink-faint">Replies usually follow within a few working days.</span>
+        <span v-if="status" class="form-note-success">{{ status }}</span>
+        <span v-else-if="serverError" class="form-note-error">{{ serverError }}</span>
+        <span v-else class="form-note-muted">Replies usually follow within a few working days.</span>
       </p>
     </div>
   </form>

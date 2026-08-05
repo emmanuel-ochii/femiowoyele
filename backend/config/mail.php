@@ -110,6 +110,25 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Internal Notification Recipients
+    |--------------------------------------------------------------------------
+    |
+    | Where submission notifications (RSVPs, contact enquiries) are delivered.
+    | CC accepts a comma-separated list so more people can be added without a
+    | code change.
+    |
+    */
+
+    'notifications' => [
+        'to' => env('MAIL_NOTIFY_TO', 'faithdolapo27@gmail.com'),
+        'cc' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('MAIL_NOTIFY_CC', 'profemative@gmail.com'))
+        ))),
+    ],
+
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),

@@ -15,6 +15,7 @@ use App\Http\Resources\MediaItemResource;
 use App\Http\Resources\PillarResource;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\QuoteResource;
+use App\Http\Resources\RsvpResource;
 use App\Models\Article;
 use App\Models\Book;
 use App\Models\Category;
@@ -26,6 +27,7 @@ use App\Models\MediaItem;
 use App\Models\Pillar;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\Rsvp;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
@@ -48,6 +50,14 @@ class AdminContentController extends Controller
                     'count' => $definition['model']::count(),
                 ])
                 ->all(),
+            'meta' => [
+                'rsvps' => [
+                    'attending' => Rsvp::where('attending', true)->count(),
+                    'declined' => Rsvp::where('attending', false)->count(),
+                    // Guests are only recorded for people who are coming.
+                    'seats' => Rsvp::where('attending', true)->count() + (int) Rsvp::where('attending', true)->sum('guests'),
+                ],
+            ],
         ]);
     }
 
@@ -106,6 +116,7 @@ class AdminContentController extends Controller
             'quotes' => ['label' => 'Quotes', 'model' => Quote::class, 'resource' => QuoteResource::class],
             'convictions' => ['label' => 'Convictions', 'model' => Conviction::class, 'resource' => ConvictionResource::class],
             'content-blocks' => ['label' => 'Content Blocks', 'model' => ContentBlock::class, 'resource' => ContentBlockResource::class],
+            'rsvps' => ['label' => 'Launch RSVPs', 'model' => Rsvp::class, 'resource' => RsvpResource::class],
         ];
     }
 

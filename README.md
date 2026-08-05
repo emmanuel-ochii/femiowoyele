@@ -33,6 +33,32 @@ cp .env.example .env
 npm run dev
 ```
 
+## Email notifications
+
+RSVP and contact submissions are emailed to the team via [Resend](https://resend.com).
+Delivery is best-effort: if the provider is unreachable the submission is still
+stored and the failure is logged, so a guest never loses their RSVP.
+
+```dotenv
+MAIL_MAILER=resend                 # `log` locally writes the email to storage/logs
+RESEND_API_KEY=re_xxxxxxxx
+MAIL_FROM_ADDRESS="hello@femiowoyele.com"
+MAIL_NOTIFY_TO=faithdolapo27@gmail.com
+MAIL_NOTIFY_CC=profemative@gmail.com   # comma-separated for several people
+```
+
+Before switching `MAIL_MAILER` to `resend` in production, verify the sending
+domain at <https://resend.com/domains>. Resend rejects a `MAIL_FROM_ADDRESS` on
+an unverified domain, so `hello@femiowoyele.com` only works once
+`femiowoyele.com` is verified there.
+
+Preview an email locally without sending it:
+
+```bash
+cd backend
+MAIL_MAILER=log php artisan serve   # submissions render into storage/logs/laravel.log
+```
+
 Seeded admin:
 
 ```text
