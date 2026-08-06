@@ -118,31 +118,15 @@
     </fieldset>
 
     <!-- Only relevant to people who are coming. -->
-    <div v-if="attending === true" class="grid gap-8 sm:grid-cols-[minmax(0,0.6fr)_minmax(0,1.4fr)]">
-      <div>
-        <label class="field-label" for="rsvp-guests">Guests joining you</label>
-        <input
-          id="rsvp-guests"
-          v-model.number="guests"
-          class="field-input mt-2"
-          :class="errors.guests && 'field-input-invalid'"
-          type="number"
-          min="0"
-          max="10"
-          inputmode="numeric"
-        />
-        <p v-if="errors.guests" class="field-error">{{ errors.guests }}</p>
-      </div>
-      <div>
-        <label class="field-label" for="rsvp-note">Anything we should know? <span class="normal-case">(optional)</span></label>
-        <input
-          id="rsvp-note"
-          v-model="note"
-          class="field-input mt-2"
-          type="text"
-          placeholder="Dietary requirements, access needs, arrival time"
-        />
-      </div>
+    <div v-if="attending === true">
+      <label class="field-label" for="rsvp-note">Anything we should know? <span class="normal-case">(optional)</span></label>
+      <input
+        id="rsvp-note"
+        v-model="note"
+        class="field-input mt-2"
+        type="text"
+        placeholder="Dietary requirements, access needs, arrival time"
+      />
     </div>
 
     <div
@@ -183,18 +167,16 @@ const schema = toTypedSchema(
     name: z.string().min(2, 'Please enter your name.'),
     email: z.string().min(1, 'Please enter your email address.').email('Please enter a valid email address.'),
     attending: z.boolean({ required_error: 'Please let us know whether you can join us.' }),
-    guests: z.number().int().min(0).max(10).optional(),
     note: z.string().max(1000).optional(),
   }),
 );
 
-const initialValues = { name: '', email: '', attending: undefined, guests: 0, note: '' };
+const initialValues = { name: '', email: '', attending: undefined, note: '' };
 const { errors, handleSubmit, isSubmitting, resetForm } = useForm({ validationSchema: schema, initialValues });
 
 const { value: name } = useField('name');
 const { value: email } = useField('email');
 const { value: attending } = useField('attending');
-const { value: guests } = useField('guests');
 const { value: note } = useField('note');
 
 const serverError = ref('');
@@ -232,7 +214,6 @@ const onSubmit = handleSubmit(async (values) => {
       name: values.name,
       email: values.email,
       attending: values.attending,
-      guests: values.attending ? values.guests || 0 : 0,
       note: values.note || null,
     });
 

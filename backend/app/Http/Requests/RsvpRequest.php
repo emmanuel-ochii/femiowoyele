@@ -17,9 +17,6 @@ class RsvpRequest extends FormRequest
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:180'],
             'attending' => ['required', 'boolean'],
-            // Only meaningful for guests who are coming; capped to keep a single
-            // submission from claiming the room.
-            'guests' => ['nullable', 'integer', 'min:0', 'max:10'],
             'note' => ['nullable', 'string', 'max:1000'],
         ];
     }

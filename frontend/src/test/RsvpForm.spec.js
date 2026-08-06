@@ -34,11 +34,12 @@ describe('RsvpForm', () => {
     expect(wrapper.text()).toContain('adults-only event');
   });
 
-  it('mirrors the three questions from the original Google Form', () => {
+  it('asks only for the core closed-event RSVP details', () => {
     const wrapper = mount(RsvpForm);
 
     expect(wrapper.find('#rsvp-name').exists()).toBe(true);
     expect(wrapper.find('#rsvp-email').exists()).toBe(true);
+    expect(wrapper.find('#rsvp-guests').exists()).toBe(false);
     expect(wrapper.text()).toContain('Will you be attending?');
     expect(wrapper.text()).toContain('Yes, I will be attending');
     expect(wrapper.text()).toContain("I won't be able to make it");
@@ -54,13 +55,12 @@ describe('RsvpForm', () => {
     expect(wrapper.text()).toContain('Please let us know whether you can join us.');
   });
 
-  it('submits an attending answer and confirms the seat', async () => {
+  it('submits an attending answer without a guest count', async () => {
     contentApi.post.mockResolvedValue({ data: {}, meta: { updated: false } });
 
     const wrapper = mount(RsvpForm);
     await fill(wrapper);
     await chooseAttending(wrapper, true);
-    await wrapper.find('#rsvp-guests').setValue(2);
     await wrapper.find('form').trigger('submit');
     await settle();
 
@@ -68,14 +68,13 @@ describe('RsvpForm', () => {
       name: 'Ada Builder',
       email: 'ada@example.com',
       attending: true,
-      guests: 2,
       note: null,
     });
     expect(wrapper.text()).toContain('Thank you for your RSVP.');
     expect(wrapper.text()).toContain('I look forward to celebrating this special milestone with you');
   });
 
-  it('sends no guest count when the answer is a decline', async () => {
+  it('sends a decline without a guest count', async () => {
     contentApi.post.mockResolvedValue({ data: {}, meta: { updated: false } });
 
     const wrapper = mount(RsvpForm);
@@ -86,8 +85,9 @@ describe('RsvpForm', () => {
 
     expect(contentApi.post).toHaveBeenCalledWith(
       '/rsvp',
-      expect.objectContaining({ attending: false, guests: 0 }),
+      expect.objectContaining({ attending: false }),
     );
+    expect(contentApi.post.mock.calls[0][1]).not.toHaveProperty('guests');
     expect(wrapper.text()).toContain('Although I will miss celebrating with you in person');
   });
 

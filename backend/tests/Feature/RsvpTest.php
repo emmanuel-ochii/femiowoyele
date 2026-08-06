@@ -21,10 +21,9 @@ class RsvpTest extends TestCase
         ])
             ->assertCreated()
             ->assertJsonPath('data.attending', true)
-            ->assertJsonPath('data.guests', 2)
             ->assertJsonPath('meta.updated', false);
 
-        $this->assertDatabaseHas('rsvps', ['email' => 'ada@example.com', 'attending' => true]);
+        $this->assertDatabaseHas('rsvps', ['email' => 'ada@example.com', 'attending' => true, 'guests' => 0]);
     }
 
     public function test_browser_origin_rsvp_does_not_require_a_csrf_cookie(): void
@@ -35,7 +34,6 @@ class RsvpTest extends TestCase
             'name' => 'Ada Builder',
             'email' => 'ada@example.com',
             'attending' => true,
-            'guests' => 1,
         ], [
             'Origin' => 'https://www.femiowoyele.com',
         ])
@@ -52,11 +50,10 @@ class RsvpTest extends TestCase
         $this->postJson('/api/rsvp', [...$payload, 'attending' => false])
             ->assertOk()
             ->assertJsonPath('data.attending', false)
-            // Guests only make sense for someone who is coming.
-            ->assertJsonPath('data.guests', 0)
             ->assertJsonPath('meta.updated', true);
 
         $this->assertSame(1, Rsvp::count());
+        $this->assertDatabaseHas('rsvps', ['email' => 'ada@example.com', 'guests' => 0]);
     }
 
     public function test_it_requires_an_attendance_answer(): void
@@ -85,8 +82,8 @@ class RsvpTest extends TestCase
             ->assertOk()
             ->assertJsonPath('meta.rsvps.attending', 1)
             ->assertJsonPath('meta.rsvps.declined', 1)
-            // One guest plus their two companions.
-            ->assertJsonPath('meta.rsvps.seats', 3);
+            // This is a closed event: one attending RSVP is one seat.
+            ->assertJsonPath('meta.rsvps.seats', 1);
 
         $this->actingAs($admin, 'sanctum')
             ->getJson('/api/admin/rsvps')

@@ -14,7 +14,6 @@ class RsvpResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'attending' => $this->attending,
-            'guests' => $this->guests,
             'note' => $this->note,
             'event_slug' => $this->event_slug,
             'source' => $this->source,

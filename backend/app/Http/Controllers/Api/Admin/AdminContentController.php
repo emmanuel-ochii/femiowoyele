@@ -64,8 +64,8 @@ class AdminContentController extends Controller
                 'rsvps' => [
                     'attending' => Rsvp::where('attending', true)->count(),
                     'declined' => Rsvp::where('attending', false)->count(),
-                    // Guests are only recorded for people who are coming.
-                    'seats' => Rsvp::where('attending', true)->count() + (int) Rsvp::where('attending', true)->sum('guests'),
+                    // This is a closed event: each attending RSVP represents one seat.
+                    'seats' => Rsvp::where('attending', true)->count(),
                 ],
             ],
         ]);
@@ -78,7 +78,6 @@ class AdminContentController extends Controller
             'Full Name',
             'Email Address',
             'Attending',
-            'Guests',
             'Note',
             'Event Slug',
             'Source',
@@ -92,7 +91,6 @@ class AdminContentController extends Controller
                 ['value' => $rsvp->name],
                 ['value' => $rsvp->email],
                 ['value' => $rsvp->attending ? 'Yes' : 'No'],
-                ['value' => (int) $rsvp->guests, 'type' => 'Number'],
                 ['value' => $rsvp->note],
                 ['value' => $rsvp->event_slug],
                 ['value' => $rsvp->source],

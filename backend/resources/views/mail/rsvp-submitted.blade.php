@@ -1,7 +1,3 @@
-@php
-    $seats = $rsvp->attending ? 1 + (int) $rsvp->guests : 0;
-@endphp
-
 @extends('mail.layout')
 
 @section('title', 'RSVP — ' . $rsvp->name)
@@ -24,8 +20,6 @@
             'Name' => $rsvp->name,
             'Email' => $rsvp->email,
             'Attending' => $rsvp->attending ? 'Yes' : 'No',
-            'Guests' => $rsvp->attending ? (string) $rsvp->guests : '—',
-            'Seats needed' => $rsvp->attending ? (string) $seats : '—',
             'Note' => $rsvp->note ?: '—',
         ] as $label => $value)
             <tr>
@@ -43,7 +37,7 @@
     </table>
 
     <p style="margin:26px 0 0; font-family:Helvetica,Arial,sans-serif; font-size:13px; line-height:22px; color:#6f7a8b;">
-        Recorded {{ $rsvp->updated_at?->format('j F Y \a\t g:ia') }}. The full guest list is in the admin studio under
+        Recorded {{ $rsvp->updated_at?->format('j F Y \a\t g:ia') }}. The full RSVP list is in the admin studio under
         Launch RSVPs.
     </p>
 @endsection

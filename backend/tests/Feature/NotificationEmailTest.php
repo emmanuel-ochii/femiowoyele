@@ -32,7 +32,6 @@ class NotificationEmailTest extends TestCase
             'name' => 'Ada Builder',
             'email' => 'ada@example.com',
             'attending' => true,
-            'guests' => 2,
         ])->assertCreated();
 
         Mail::assertSent(RsvpSubmitted::class, function (RsvpSubmitted $mail) {
@@ -120,7 +119,7 @@ class NotificationEmailTest extends TestCase
 
     public function test_the_confirmation_renders_for_both_answers(): void
     {
-        $attending = Rsvp::create(['name' => 'Ada', 'email' => 'a@example.com', 'attending' => true, 'guests' => 1]);
+        $attending = Rsvp::create(['name' => 'Ada', 'email' => 'a@example.com', 'attending' => true]);
         $declined = Rsvp::create(['name' => 'Bode', 'email' => 'b@example.com', 'attending' => false]);
 
         $this->assertStringContainsString('special milestone', (new RsvpConfirmation($attending))->render());

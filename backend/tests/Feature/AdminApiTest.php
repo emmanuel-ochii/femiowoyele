@@ -110,14 +110,12 @@ class AdminApiTest extends TestCase
             'name' => 'Ada Builder',
             'email' => 'ada@example.com',
             'attending' => true,
-            'guests' => 2,
             'note' => 'Careful & ready',
         ]);
         Rsvp::create([
             'name' => 'Tunde Steward',
             'email' => 'tunde@example.com',
             'attending' => false,
-            'guests' => 0,
         ]);
 
         $this->get('/api/admin/rsvps/export')
@@ -127,7 +125,8 @@ class AdminApiTest extends TestCase
             ->assertSee('Ada Builder', false)
             ->assertSee('ada@example.com', false)
             ->assertSee('Careful &amp; ready', false)
-            ->assertSee('Tunde Steward', false);
+            ->assertSee('Tunde Steward', false)
+            ->assertDontSee('Guests', false);
     }
 
     public function test_admin_password_can_be_rotated_from_artisan(): void

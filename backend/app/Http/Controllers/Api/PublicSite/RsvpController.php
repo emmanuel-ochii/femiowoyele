@@ -30,7 +30,7 @@ class RsvpController extends Controller
             [
                 'name' => $data['name'],
                 'attending' => $attending,
-                'guests' => $attending ? (int) ($data['guests'] ?? 0) : 0,
+                'guests' => 0,
                 'note' => $data['note'] ?? null,
                 'event_slug' => 'home.launch',
                 'source' => 'website',

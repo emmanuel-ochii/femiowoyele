@@ -342,7 +342,7 @@ const badgesFor = (item = {}) => {
   if (item.is_active === true) badges.push('Active');
   if (item.is_active === false && resource.value.slug === 'quotes') badges.push('Inactive');
   if (resource.value.slug === 'rsvps') {
-    badges.push(item.attending ? `Attending +${Number(item.guests || 0)}` : 'Declined');
+    badges.push(item.attending ? 'Attending' : 'Declined');
   }
   return badges;
 };
