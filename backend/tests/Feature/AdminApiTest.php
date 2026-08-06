@@ -12,6 +12,7 @@ use App\Models\NewsletterSubscriber;
 use App\Models\Rsvp;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -127,6 +128,25 @@ class AdminApiTest extends TestCase
             ->assertSee('ada@example.com', false)
             ->assertSee('Careful &amp; ready', false)
             ->assertSee('Tunde Steward', false);
+    }
+
+    public function test_admin_password_can_be_rotated_from_artisan(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin@femiowoyele.com',
+            'role' => 'admin',
+        ]);
+        $admin->createToken('old-token');
+
+        $this->artisan('admin:set-password', [
+            '--email' => 'admin@femiowoyele.com',
+            '--password' => 'Example@2026_40',
+        ])->assertSuccessful();
+
+        $admin->refresh();
+
+        $this->assertTrue(Hash::check('Example@2026_40', $admin->password));
+        $this->assertSame(0, $admin->tokens()->count());
     }
 
     public function test_admin_can_create_update_and_delete_gallery_items(): void

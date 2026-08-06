@@ -16,7 +16,7 @@ use App\Models\Project;
 use App\Models\Quote;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 
 /**
  * Baseline editorial content for FemiOwoyele.com.
@@ -30,10 +30,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::firstOrCreate(
-            ['email' => 'admin@femiowoyele.com'],
+            ['email' => (string) env('ADMIN_EMAIL', 'admin@femiowoyele.com')],
             [
                 'name' => 'FemiOwoyele Admin',
-                'password' => Hash::make('password'),
+                'password' => $this->initialAdminPassword(),
                 'role' => 'admin',
             ],
         );
@@ -53,6 +53,21 @@ class DatabaseSeeder extends Seeder
         foreach ($this->contentBlocks() as $block) {
             ContentBlock::updateOrCreate(['slug' => $block['slug']], $block);
         }
+    }
+
+    private function initialAdminPassword(): string
+    {
+        $password = (string) env('ADMIN_INITIAL_PASSWORD', '');
+
+        if ($password !== '') {
+            return $password;
+        }
+
+        if (app()->isProduction()) {
+            throw new RuntimeException('Set ADMIN_INITIAL_PASSWORD before seeding the first production admin.');
+        }
+
+        return 'password';
     }
 
     private function seedCategories()
