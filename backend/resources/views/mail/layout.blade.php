@@ -38,7 +38,7 @@
             <tr>
               <td style="border-top:1px solid rgba(11,28,50,0.10); padding:20px 32px;">
                 <p style="margin:0; font-family:Helvetica,Arial,sans-serif; font-size:12px; line-height:20px; color:#6f7a8b;">
-                  @yield('footer', 'Sent automatically from femiowoyele.com. Reply to this email to respond directly to the sender.')
+                  @yield('footer', 'Sent automatically from femiowoyele.com. Do not reply to this email.')
                 </p>
               </td>
             </tr>
