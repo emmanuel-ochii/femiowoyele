@@ -35,7 +35,7 @@
         @endif
 
         <p style="margin:26px 0 0; font-family:Helvetica,Arial,sans-serif; font-size:14px; line-height:24px; color:#8c6a31;">
-            Please note this is an adults-only event. We kindly ask that you respect this guideline.
+            Please note this is an adults-only event.
         </p>
     @endif
 

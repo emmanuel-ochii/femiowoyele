@@ -36,7 +36,7 @@
         dark ? 'border-red-400 bg-red-400/10 text-red-300' : 'border-red-600 bg-red-50 text-red-700',
       ]"
     >
-      Please note: this is an adults-only event. We kindly ask that you respect this information.
+      Please note: this is an adults-only event.
     </p>
 
     <div class="grid gap-8 sm:grid-cols-2">
@@ -137,7 +137,7 @@
       </BaseButton>
       <p class="form-note text-[0.82rem] leading-6" aria-live="polite">
         <span v-if="serverError" class="form-note-error">{{ serverError }}</span>
-        <span v-else class="form-note-muted">Your details are used only for this evening.</span>
+        <span v-else class="form-note-muted">Your details are used only for this event.</span>
       </p>
     </div>
   </form>
