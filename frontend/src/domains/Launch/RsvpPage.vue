@@ -93,7 +93,7 @@ const bookSlug = computed(() => meta.value.book_slug || 'entrusted');
 const heading = computed(() => 'An evening of gratitude and great beginnings.');
 const intro = computed(
   () =>
-    `Join Femi Owoyele for his fortieth birthday and the unveiling of ${title.value}, his first book. Kindly let us know whether you can be with us.`,
+    ``,
 );
 
 const { parts, hasPassed, isToday } = useCountdown(() => meta.value.starts_at);
