@@ -41,6 +41,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Response;
 
 class AdminContentController extends Controller
 {
@@ -67,6 +68,43 @@ class AdminContentController extends Controller
                     'seats' => Rsvp::where('attending', true)->count() + (int) Rsvp::where('attending', true)->sum('guests'),
                 ],
             ],
+        ]);
+    }
+
+    public function exportRsvps(): Response
+    {
+        $filename = 'femiowoyele-rsvps-'.now()->toDateString().'.xls';
+        $headers = [
+            'Full Name',
+            'Email Address',
+            'Attending',
+            'Guests',
+            'Note',
+            'Event Slug',
+            'Source',
+            'Submitted At',
+        ];
+
+        $rows = Rsvp::query()
+            ->latest()
+            ->get()
+            ->map(fn (Rsvp $rsvp) => [
+                ['value' => $rsvp->name],
+                ['value' => $rsvp->email],
+                ['value' => $rsvp->attending ? 'Yes' : 'No'],
+                ['value' => (int) $rsvp->guests, 'type' => 'Number'],
+                ['value' => $rsvp->note],
+                ['value' => $rsvp->event_slug],
+                ['value' => $rsvp->source],
+                ['value' => $rsvp->created_at?->toDateTimeString()],
+            ])
+            ->all();
+
+        return response($this->excelXml('Launch RSVPs', $headers, $rows), 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'X-Content-Type-Options' => 'nosniff',
         ]);
     }
 
@@ -166,6 +204,42 @@ class AdminContentController extends Controller
             405,
             'This resource is managed by public submissions and is read-only in the CMS.'
         );
+    }
+
+    private function excelXml(string $sheetName, array $headers, array $rows): string
+    {
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        $xml .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" ';
+        $xml .= 'xmlns:o="urn:schemas-microsoft-com:office:office" ';
+        $xml .= 'xmlns:x="urn:schemas-microsoft-com:office:excel" ';
+        $xml .= 'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'."\n";
+        $xml .= '<Worksheet ss:Name="'.$this->xml($sheetName).'"><Table>'."\n";
+        $xml .= $this->excelRow(array_map(fn (string $header) => ['value' => $header], $headers));
+
+        foreach ($rows as $row) {
+            $xml .= $this->excelRow($row);
+        }
+
+        $xml .= '</Table></Worksheet></Workbook>';
+
+        return $xml;
+    }
+
+    private function excelRow(array $cells): string
+    {
+        $xml = '<Row>';
+
+        foreach ($cells as $cell) {
+            $type = $cell['type'] ?? 'String';
+            $xml .= '<Cell><Data ss:Type="'.$this->xml($type).'">'.$this->xml($cell['value'] ?? '').'</Data></Cell>';
+        }
+
+        return $xml.'</Row>'."\n";
+    }
+
+    private function xml(mixed $value): string
+    {
+        return htmlspecialchars((string) $value, ENT_XML1 | ENT_COMPAT, 'UTF-8');
     }
 
     private function resource(string $resource, Model $model): JsonResource

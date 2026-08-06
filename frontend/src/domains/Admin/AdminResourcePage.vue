@@ -16,6 +16,16 @@
           type="search"
           :placeholder="`Search ${resource.label.toLowerCase()}`"
         />
+        <BaseButton
+          v-if="canExport"
+          class="whitespace-nowrap"
+          variant="outline"
+          icon="download"
+          :loading="exporting"
+          @click="downloadExport"
+        >
+          {{ exporting ? 'Preparing' : resource.export.label }}
+        </BaseButton>
         <BaseButton v-if="canCreate" variant="outline" icon="arrowRight" @click="resetForm">New item</BaseButton>
       </div>
     </div>
@@ -187,6 +197,7 @@ const resource = computed(() => resourceFor(route.params.resource));
 const items = ref([]);
 const loading = ref(false);
 const saving = ref(false);
+const exporting = ref(false);
 const message = ref('');
 const error = ref('');
 const searchTerm = ref('');
@@ -197,6 +208,7 @@ const form = reactive({});
 
 const canCreate = computed(() => resource.value.allowCreate !== false && !resource.value.readOnly);
 const canDelete = computed(() => resource.value.allowDelete !== false && !resource.value.readOnly);
+const canExport = computed(() => Boolean(resource.value.export?.endpoint));
 const isReadOnly = computed(() => resource.value.readOnly === true);
 const singularLabel = computed(() => resource.value.singularLabel || resource.value.label.toLowerCase());
 const formMode = computed(() => (isReadOnly.value ? 'Record details' : form.id ? 'Editing' : 'Creating'));
@@ -413,6 +425,31 @@ const remove = async (item) => {
     message.value = 'Deleted.';
   } catch (caught) {
     error.value = caught.response?.data?.message || caught.message || 'Unable to delete this item.';
+  }
+};
+
+const downloadExport = async () => {
+  if (!canExport.value) return;
+
+  message.value = '';
+  error.value = '';
+  exporting.value = true;
+
+  try {
+    const { blob, filename } = await adminApi.download(resource.value.export.endpoint);
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+    message.value = 'Download started.';
+  } catch (caught) {
+    error.value = caught.response?.data?.message || caught.message || 'Unable to download this export.';
+  } finally {
+    exporting.value = false;
   }
 };
 

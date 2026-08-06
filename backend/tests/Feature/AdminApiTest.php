@@ -22,6 +22,7 @@ class AdminApiTest extends TestCase
     public function test_admin_endpoints_require_authentication(): void
     {
         $this->getJson('/api/admin/overview')->assertUnauthorized();
+        $this->getJson('/api/admin/rsvps/export')->assertUnauthorized();
     }
 
     public function test_admin_can_create_update_and_delete_articles(): void
@@ -97,6 +98,35 @@ class AdminApiTest extends TestCase
         $this->assertDatabaseHas(Rsvp::class, ['id' => $rsvp->id]);
         $this->assertDatabaseHas(ContactMessage::class, ['id' => $message->id]);
         $this->assertDatabaseHas(NewsletterSubscriber::class, ['id' => $subscriber->id]);
+    }
+
+    public function test_admin_can_export_all_rsvps_as_an_excel_file(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Sanctum::actingAs($admin);
+
+        Rsvp::create([
+            'name' => 'Ada Builder',
+            'email' => 'ada@example.com',
+            'attending' => true,
+            'guests' => 2,
+            'note' => 'Careful & ready',
+        ]);
+        Rsvp::create([
+            'name' => 'Tunde Steward',
+            'email' => 'tunde@example.com',
+            'attending' => false,
+            'guests' => 0,
+        ]);
+
+        $this->get('/api/admin/rsvps/export')
+            ->assertOk()
+            ->assertHeader('content-type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->assertHeader('content-disposition', 'attachment; filename="femiowoyele-rsvps-'.now()->toDateString().'.xls"')
+            ->assertSee('Ada Builder', false)
+            ->assertSee('ada@example.com', false)
+            ->assertSee('Careful &amp; ready', false)
+            ->assertSee('Tunde Steward', false);
     }
 
     public function test_admin_can_create_update_and_delete_gallery_items(): void

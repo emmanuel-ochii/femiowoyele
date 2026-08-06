@@ -1,5 +1,10 @@
 import http from './http';
 
+const filenameFromDisposition = (disposition) => {
+  const match = disposition?.match(/filename="?([^"]+)"?/i);
+  return match?.[1] || null;
+};
+
 export const adminApi = {
   async login(payload) {
     const { data } = await http.post('/auth/login', payload);
@@ -38,5 +43,13 @@ export const adminApi = {
   async destroy(resource, id) {
     const { data } = await http.delete(`/admin/${resource}/${id}`);
     return data.data;
+  },
+
+  async download(endpoint) {
+    const response = await http.get(endpoint, { responseType: 'blob' });
+    return {
+      blob: response.data,
+      filename: filenameFromDisposition(response.headers['content-disposition']) || 'download.xls',
+    };
   },
 };

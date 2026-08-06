@@ -8,6 +8,10 @@ export const adminResources = [
     allowDelete: false,
     readOnly: true,
     perPage: 50,
+    export: {
+      label: 'Download XLS',
+      endpoint: '/admin/rsvps/export',
+    },
     fields: [
       { name: 'name', type: 'text', label: 'Full name', readonly: true },
       { name: 'email', type: 'email', label: 'Email address', readonly: true },
