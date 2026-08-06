@@ -42,6 +42,24 @@
             </button>
           </div>
         </div>
+        <nav class="flex gap-2 overflow-x-auto border-t border-navy-900/10 px-5 py-3 sm:px-8 lg:hidden" aria-label="Admin mobile sections">
+          <RouterLink
+            to="/admin"
+            class="shrink-0 border border-navy-900/10 bg-white px-3 py-2 text-[0.78rem] font-semibold text-ink-muted"
+            exact-active-class="!border-navy-900 !bg-navy-900 !text-white"
+          >
+            Dashboard
+          </RouterLink>
+          <RouterLink
+            v-for="item in resources"
+            :key="item.slug"
+            :to="`/admin/content/${item.slug}`"
+            class="shrink-0 border border-navy-900/10 bg-white px-3 py-2 text-[0.78rem] font-semibold text-ink-muted"
+            active-class="!border-navy-900 !bg-navy-900 !text-white"
+          >
+            {{ item.label }}
+          </RouterLink>
+        </nav>
       </header>
 
       <main class="px-5 py-10 sm:px-8">

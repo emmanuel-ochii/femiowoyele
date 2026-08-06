@@ -14,6 +14,7 @@ class GalleryResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'media_items' => MediaItemResource::collection($this->whenLoaded('mediaItems')),
+            'created_at' => $this->created_at?->toIso8601String(),
         ];
     }
 }

@@ -7,11 +7,15 @@ use App\Http\Requests\AdminContentRequest;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\ContactMessageResource;
 use App\Http\Resources\ContentBlockResource;
 use App\Http\Resources\ConvictionResource;
+use App\Http\Resources\GalleryItemResource;
+use App\Http\Resources\GalleryResource;
 use App\Http\Resources\ImpactMetricResource;
 use App\Http\Resources\JournalEntryResource;
 use App\Http\Resources\MediaItemResource;
+use App\Http\Resources\NewsletterSubscriberResource;
 use App\Http\Resources\PillarResource;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\QuoteResource;
@@ -19,11 +23,15 @@ use App\Http\Resources\RsvpResource;
 use App\Models\Article;
 use App\Models\Book;
 use App\Models\Category;
+use App\Models\ContactMessage;
 use App\Models\ContentBlock;
 use App\Models\Conviction;
+use App\Models\Gallery;
+use App\Models\GalleryItem;
 use App\Models\ImpactMetric;
 use App\Models\JournalEntry;
 use App\Models\MediaItem;
+use App\Models\NewsletterSubscriber;
 use App\Models\Pillar;
 use App\Models\Project;
 use App\Models\Quote;
@@ -45,7 +53,8 @@ class AdminContentController extends Controller
     {
         return response()->json([
             'data' => collect(self::map())
-                ->map(fn (array $definition) => [
+                ->map(fn (array $definition, string $slug) => [
+                    'slug' => $slug,
                     'label' => $definition['label'],
                     'count' => $definition['model']::count(),
                 ])
@@ -76,6 +85,8 @@ class AdminContentController extends Controller
 
     public function store(AdminContentRequest $request, string $resource): JsonResource
     {
+        $this->abortIfReadOnly($resource);
+
         $model = $this->definition($resource)['model']::create($request->validated());
 
         return $this->resource($resource, $model->fresh());
@@ -88,6 +99,8 @@ class AdminContentController extends Controller
 
     public function update(AdminContentRequest $request, string $resource, int $id): JsonResource
     {
+        $this->abortIfReadOnly($resource);
+
         $model = $this->find($resource, $id);
         $model->fill($request->validated());
         $model->save();
@@ -97,6 +110,8 @@ class AdminContentController extends Controller
 
     public function destroy(string $resource, int $id): JsonResponse
     {
+        $this->abortIfReadOnly($resource);
+
         $this->find($resource, $id)->delete();
 
         return response()->json(['data' => ['deleted' => true]]);
@@ -117,7 +132,16 @@ class AdminContentController extends Controller
             'convictions' => ['label' => 'Convictions', 'model' => Conviction::class, 'resource' => ConvictionResource::class],
             'content-blocks' => ['label' => 'Content Blocks', 'model' => ContentBlock::class, 'resource' => ContentBlockResource::class],
             'rsvps' => ['label' => 'Launch RSVPs', 'model' => Rsvp::class, 'resource' => RsvpResource::class],
+            'contact-messages' => ['label' => 'Contact Messages', 'model' => ContactMessage::class, 'resource' => ContactMessageResource::class],
+            'newsletter-subscribers' => ['label' => 'Newsletter Subscribers', 'model' => NewsletterSubscriber::class, 'resource' => NewsletterSubscriberResource::class],
+            'galleries' => ['label' => 'Galleries', 'model' => Gallery::class, 'resource' => GalleryResource::class],
+            'gallery-items' => ['label' => 'Gallery Items', 'model' => GalleryItem::class, 'resource' => GalleryItemResource::class],
         ];
+    }
+
+    private static function readOnlyResources(): array
+    {
+        return ['rsvps', 'contact-messages', 'newsletter-subscribers'];
     }
 
     private function definition(string $resource): array
@@ -135,6 +159,15 @@ class AdminContentController extends Controller
         return $query->findOrFail($id);
     }
 
+    private function abortIfReadOnly(string $resource): void
+    {
+        abort_if(
+            in_array($resource, self::readOnlyResources(), true),
+            405,
+            'This resource is managed by public submissions and is read-only in the CMS.'
+        );
+    }
+
     private function resource(string $resource, Model $model): JsonResource
     {
         $resourceClass = $this->definition($resource)['resource'];
@@ -149,6 +182,8 @@ class AdminContentController extends Controller
             'journal-entries' => $query->with('category'),
             'pillars' => $query->with(['projects', 'articles', 'mediaItems']),
             'media-items' => $query->with('pillar'),
+            'galleries' => $query->with('mediaItems'),
+            'gallery-items' => $query->with(['gallery', 'mediaItem']),
             default => null,
         };
     }
@@ -158,6 +193,7 @@ class AdminContentController extends Controller
         match ($resource) {
             'articles', 'journal-entries', 'media-items' => $query->latest('published_at'),
             'books', 'pillars', 'impact-metrics', 'convictions', 'content-blocks' => $query->orderBy('order'),
+            'gallery-items' => $query->orderBy('gallery_id')->orderBy('order'),
             default => $query->latest(),
         };
     }

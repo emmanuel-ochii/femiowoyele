@@ -106,6 +106,33 @@ class AdminContentRequest extends FormRequest
                 'meta' => ['nullable', 'array'],
                 'order' => ['integer', 'min:0'],
             ],
+            'contact-messages' => [
+                'name' => ['required', 'string', 'max:120'],
+                'email' => ['required', 'email', 'max:180'],
+                'subject' => ['required', 'string', 'max:180'],
+                'message' => ['required', 'string'],
+                'type' => ['required', 'string', 'max:80'],
+            ],
+            'newsletter-subscribers' => [
+                'email' => ['required', 'email', 'max:180', Rule::unique('newsletter_subscribers', 'email')->ignore($id)],
+                'name' => ['nullable', 'string', 'max:120'],
+                'source' => ['nullable', 'string', 'max:120'],
+            ],
+            'galleries' => [
+                'title' => ['required', 'string', 'max:180'],
+                'description' => ['nullable', 'string'],
+            ],
+            'gallery-items' => [
+                'gallery_id' => ['required', 'exists:galleries,id'],
+                'media_item_id' => [
+                    'required',
+                    'exists:media_items,id',
+                    Rule::unique('gallery_items', 'media_item_id')
+                        ->where(fn ($query) => $query->where('gallery_id', $this->input('gallery_id')))
+                        ->ignore($id),
+                ],
+                'order' => ['integer', 'min:0'],
+            ],
             default => [],
         };
     }

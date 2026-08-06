@@ -17,12 +17,12 @@ export const adminApi = {
 
   async overview() {
     const { data } = await http.get('/admin/overview');
-    return data.data;
+    return data;
   },
 
-  async list(resource) {
-    const { data } = await http.get(`/admin/${resource}`);
-    return data.data;
+  async list(resource, params = {}) {
+    const { data } = await http.get(`/admin/${resource}`, { params });
+    return data;
   },
 
   async create(resource, payload) {
