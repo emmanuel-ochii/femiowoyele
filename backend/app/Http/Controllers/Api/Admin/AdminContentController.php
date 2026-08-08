@@ -19,6 +19,8 @@ use App\Http\Resources\NewsletterSubscriberResource;
 use App\Http\Resources\PillarResource;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\QuoteResource;
+use App\Http\Resources\OrderResource;
+use App\Http\Resources\PickupPointResource;
 use App\Http\Resources\RsvpResource;
 use App\Models\Article;
 use App\Models\Book;
@@ -35,6 +37,8 @@ use App\Models\NewsletterSubscriber;
 use App\Models\Pillar;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\Order;
+use App\Models\PickupPoint;
 use App\Models\Rsvp;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -168,6 +172,8 @@ class AdminContentController extends Controller
             'convictions' => ['label' => 'Convictions', 'model' => Conviction::class, 'resource' => ConvictionResource::class],
             'content-blocks' => ['label' => 'Content Blocks', 'model' => ContentBlock::class, 'resource' => ContentBlockResource::class],
             'rsvps' => ['label' => 'Launch RSVPs', 'model' => Rsvp::class, 'resource' => RsvpResource::class],
+            'orders' => ['label' => 'Pre-orders', 'model' => Order::class, 'resource' => OrderResource::class],
+            'pickup-points' => ['label' => 'Pickup Points', 'model' => PickupPoint::class, 'resource' => PickupPointResource::class],
             'contact-messages' => ['label' => 'Contact Messages', 'model' => ContactMessage::class, 'resource' => ContactMessageResource::class],
             'newsletter-subscribers' => ['label' => 'Newsletter Subscribers', 'model' => NewsletterSubscriber::class, 'resource' => NewsletterSubscriberResource::class],
             'galleries' => ['label' => 'Galleries', 'model' => Gallery::class, 'resource' => GalleryResource::class],
@@ -254,6 +260,7 @@ class AdminContentController extends Controller
             'journal-entries' => $query->with('category'),
             'pillars' => $query->with(['projects', 'articles', 'mediaItems']),
             'media-items' => $query->with('pillar'),
+            'orders' => $query->with(['book', 'pickupPoint']),
             'galleries' => $query->with('mediaItems'),
             'gallery-items' => $query->with(['gallery', 'mediaItem']),
             default => null,
@@ -264,7 +271,7 @@ class AdminContentController extends Controller
     {
         match ($resource) {
             'articles', 'journal-entries', 'media-items' => $query->latest('published_at'),
-            'books', 'pillars', 'impact-metrics', 'convictions', 'content-blocks' => $query->orderBy('order'),
+            'books', 'pillars', 'impact-metrics', 'convictions', 'content-blocks', 'pickup-points' => $query->orderBy('order'),
             'gallery-items' => $query->orderBy('gallery_id')->orderBy('order'),
             default => $query->latest(),
         };

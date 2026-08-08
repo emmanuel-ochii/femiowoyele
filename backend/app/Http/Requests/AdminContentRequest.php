@@ -80,6 +80,16 @@ class AdminContentRequest extends FormRequest
                 'attending' => ['required', 'boolean'],
                 'note' => ['nullable', 'string', 'max:1000'],
             ],
+            'pickup-points' => [
+                'name' => ['required', 'string', 'max:160'],
+                'address' => ['required', 'string', 'max:255'],
+                'city' => ['nullable', 'string', 'max:120'],
+                'contact_phone' => ['nullable', 'string', 'max:40'],
+                'opening_hours' => ['nullable', 'string', 'max:160'],
+                'note' => ['nullable', 'string', 'max:255'],
+                'is_active' => ['boolean'],
+                'order' => ['integer', 'min:0'],
+            ],
             'impact-metrics' => [
                 'slug' => ['required', 'string', 'max:180', Rule::unique('impact_metrics', 'slug')->ignore($id)],
                 'label' => ['required', 'string', 'max:160'],

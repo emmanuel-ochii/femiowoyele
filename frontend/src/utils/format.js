@@ -18,3 +18,17 @@ export function readingTime(body) {
 
   return `${Math.max(1, Math.round(words / 220))} min read`;
 }
+
+/**
+ * Renders an amount held in minor units (kobo) as a display string.
+ * Amounts are integers end to end to avoid floating-point drift on totals.
+ */
+export function formatMinorUnits(minorUnits, currency = 'NGN') {
+  const symbols = { NGN: '\u20a6', USD: '$', GBP: '\u00a3', EUR: '\u20ac' };
+  const symbol = symbols[currency] || '';
+
+  return symbol + (Number(minorUnits || 0) / 100).toLocaleString('en-NG', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}

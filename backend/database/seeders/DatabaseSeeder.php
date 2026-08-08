@@ -12,6 +12,7 @@ use App\Models\ImpactMetric;
 use App\Models\JournalEntry;
 use App\Models\MediaItem;
 use App\Models\Pillar;
+use App\Models\PickupPoint;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Models\User;
@@ -49,6 +50,7 @@ class DatabaseSeeder extends Seeder
         $this->seedQuotes();
         $this->seedMedia($pillars);
         $this->seedJournal($categories);
+        $this->seedPickupPoints();
 
         foreach ($this->contentBlocks() as $block) {
             ContentBlock::updateOrCreate(['slug' => $block['slug']], $block);
@@ -391,6 +393,47 @@ class DatabaseSeeder extends Seeder
                     'published_at' => now()->subDays($entry['days_ago']),
                 ],
             );
+        }
+    }
+
+    /**
+     * Collection points for pre-ordered copies.
+     *
+     * The launch venue is confirmed; the rest are placeholders so the table has
+     * shape. Replace them in the admin studio under Pickup Points before the
+     * pre-order page goes live.
+     */
+    private function seedPickupPoints(): void
+    {
+        $points = [
+            [
+                'name' => 'Launch evening — Watercress Event Centre',
+                'address' => '5 Alade Avenue, Allen, Ikeja',
+                'city' => 'Lagos',
+                'opening_hours' => 'Tuesday, 18 August 2026, from 4:00 p.m.',
+                'note' => 'Collect your copy on the night of the unveiling.',
+                'order' => 1,
+            ],
+            [
+                'name' => 'Ikeja collection point',
+                'address' => 'To be confirmed',
+                'city' => 'Lagos',
+                'opening_hours' => 'Weekdays, 10:00 a.m. – 5:00 p.m.',
+                'note' => 'Placeholder — confirm address before launch.',
+                'order' => 2,
+            ],
+            [
+                'name' => 'Lekki collection point',
+                'address' => 'To be confirmed',
+                'city' => 'Lagos',
+                'opening_hours' => 'Weekdays, 10:00 a.m. – 5:00 p.m.',
+                'note' => 'Placeholder — confirm address before launch.',
+                'order' => 3,
+            ],
+        ];
+
+        foreach ($points as $point) {
+            PickupPoint::updateOrCreate(['name' => $point['name']], $point);
         }
     }
 

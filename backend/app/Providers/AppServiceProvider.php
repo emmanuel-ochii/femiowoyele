@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use App\Payments\MockGateway;
+use App\Payments\PaymentGateway;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -13,6 +15,14 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // Resolved from config so adding Paystack later is a driver entry plus
+        // one class, with no change to the pre-order flow itself.
+        $this->app->bind(PaymentGateway::class, function () {
+            return match (config('payments.driver')) {
+                default => new MockGateway(),
+            };
+        });
+
         //
     }
 
@@ -32,6 +42,10 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('newsletter', function (Request $request) {
             return Limit::perMinute(12)->by($request->ip());
+        });
+
+        RateLimiter::for('pre-order', function (Request $request) {
+            return Limit::perMinute(15)->by($request->ip());
         });
 
         RateLimiter::for('rsvp', function (Request $request) {

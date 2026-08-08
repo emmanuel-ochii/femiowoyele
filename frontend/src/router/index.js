@@ -36,6 +36,17 @@ const router = createRouter({
           component: () => import('../domains/Launch/EntrustedLaunchPage.vue'),
         },
         { path: 'rsvp', name: 'rsvp', component: () => import('../domains/Launch/RsvpPage.vue') },
+        { path: 'pre-order', name: 'pre-order', component: () => import('../domains/PreOrder/PreOrderPage.vue') },
+        {
+          path: 'pre-order/checkout',
+          name: 'pre-order-checkout',
+          component: () => import('../domains/PreOrder/PreOrderCheckoutPage.vue'),
+        },
+        {
+          path: 'pre-order/complete',
+          name: 'pre-order-complete',
+          component: () => import('../domains/PreOrder/PreOrderCompletePage.vue'),
+        },
         { path: 'books/:slug', name: 'book-detail', component: () => import('../domains/Books/BookDetailPage.vue') },
         { path: 'speaking', name: 'speaking', component: () => import('../domains/Speaking/SpeakingPage.vue') },
         { path: 'mentorship', name: 'mentorship', component: () => import('../domains/Mentorship/MentorshipPage.vue') },

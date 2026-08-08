@@ -1,5 +1,30 @@
 export const adminResources = [
   {
+    slug: 'orders',
+    label: 'Pre-orders',
+    fields: [
+      ['name', 'text'],
+      ['email', 'text'],
+      ['phone', 'text'],
+      ['quantity', 'number'],
+      ['status', 'text'],
+    ],
+  },
+  {
+    slug: 'pickup-points',
+    label: 'Pickup Points',
+    fields: [
+      ['name', 'text'],
+      ['address', 'text'],
+      ['city', 'text'],
+      ['contact_phone', 'text'],
+      ['opening_hours', 'text'],
+      ['note', 'text'],
+      ['is_active', 'checkbox'],
+      ['order', 'number'],
+    ],
+  },
+  {
     slug: 'rsvps',
     label: 'Launch RSVPs',
     singularLabel: 'launch RSVP',

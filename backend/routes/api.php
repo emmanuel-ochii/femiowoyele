@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\PublicSite\LaunchController;
 use App\Http\Controllers\Api\PublicSite\MediaController;
 use App\Http\Controllers\Api\PublicSite\MentorshipController;
 use App\Http\Controllers\Api\PublicSite\NewsletterController;
+use App\Http\Controllers\Api\PublicSite\PreOrderController;
 use App\Http\Controllers\Api\PublicSite\RsvpController;
 use App\Http\Controllers\Api\PublicSite\PillarController;
 use App\Http\Controllers\Api\PublicSite\SpeakingController;
@@ -55,6 +56,12 @@ Route::get('/journal/{journalEntry:slug}', [JournalController::class, 'show']);
 Route::post('/contact', ContactController::class)->middleware('throttle:contact');
 Route::post('/newsletter/subscribe', NewsletterController::class)->middleware('throttle:newsletter');
 Route::post('/rsvp', RsvpController::class)->middleware('throttle:rsvp');
+
+Route::get('/pre-order', [PreOrderController::class, 'show']);
+Route::post('/pre-order', [PreOrderController::class, 'store'])->middleware('throttle:pre-order');
+Route::get('/pre-order/{reference}', [PreOrderController::class, 'status']);
+Route::post('/pre-order/{reference}/verify', [PreOrderController::class, 'verify'])->middleware('throttle:pre-order');
+Route::post('/pre-order/{reference}/simulate', [PreOrderController::class, 'simulate'])->middleware('throttle:pre-order');
 
 Route::prefix('admin')
     ->middleware(['auth:sanctum', 'can:manage-content'])
