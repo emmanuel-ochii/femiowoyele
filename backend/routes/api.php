@@ -68,6 +68,7 @@ Route::prefix('admin')
     ->group(function (): void {
         Route::get('/overview', [AdminContentController::class, 'overview']);
         Route::get('/rsvps/export', [AdminContentController::class, 'exportRsvps']);
+        Route::get('/orders/export', [AdminContentController::class, 'exportOrders']);
         Route::get('/{resource}', [AdminContentController::class, 'index'])->whereIn('resource', AdminContentController::resources());
         Route::post('/{resource}', [AdminContentController::class, 'store'])->whereIn('resource', AdminContentController::resources());
         Route::get('/{resource}/{id}', [AdminContentController::class, 'show'])->whereIn('resource', AdminContentController::resources());

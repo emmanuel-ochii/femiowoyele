@@ -190,6 +190,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import BaseButton from '../../components/ui/BaseButton.vue';
 import { adminApi } from '../../services/adminApi';
+import { formatDate } from '../../utils/format';
 import { resourceFor } from './adminResources';
 
 const route = useRoute();
@@ -231,7 +232,26 @@ const filteredItems = computed(() => {
   if (!query) return items.value;
 
   return items.value.filter((item) =>
-    [primaryLabel(item), summaryFor(item), metaLine(item), item.email, item.slug, item.subject, item.message, item.source, item.created_at]
+    [
+      primaryLabel(item),
+      summaryFor(item),
+      metaLine(item),
+      item.email,
+      item.phone,
+      item.reference,
+      item.status,
+      item.total_display,
+      item.payment_provider,
+      item.pickup_point_name,
+      item.pickup_point?.name,
+      item.slug,
+      item.subject,
+      item.message,
+      item.source,
+      item.address,
+      item.city,
+      item.created_at,
+    ]
       .filter(Boolean)
       .join(' ')
       .toLowerCase()
@@ -294,17 +314,36 @@ const optionsFor = (field) => {
   }));
 };
 
-const primaryLabel = (item = {}) =>
-  item.title ||
-  item.label ||
-  item.name ||
-  item.email ||
-  item.media_item?.title ||
-  item.gallery?.title ||
-  item.slug ||
-  item.text ||
-  `#${item.id || ''}`;
+const copyLabel = (quantity) => `${Number(quantity || 0)} ${Number(quantity) === 1 ? 'copy' : 'copies'}`;
+const pickupPointName = (item = {}) => item.pickup_point_name || item.pickup_point?.name || '';
+
+const primaryLabel = (item = {}) => {
+  if (resource.value.slug === 'orders') {
+    return [item.reference, item.name].filter(Boolean).join(' / ') || `#${item.id || ''}`;
+  }
+
+  return (
+    item.title ||
+    item.label ||
+    item.name ||
+    item.email ||
+    item.media_item?.title ||
+    item.gallery?.title ||
+    item.slug ||
+    item.text ||
+    `#${item.id || ''}`
+  );
+};
+
 const summaryFor = (item = {}) => {
+  if (resource.value.slug === 'orders') {
+    return [copyLabel(item.quantity), item.total_display, pickupPointName(item) || 'Pickup point not selected'].filter(Boolean).join(' / ');
+  }
+
+  if (resource.value.slug === 'pickup-points') {
+    return [item.address, item.city, item.opening_hours].filter(Boolean).join(' / ') || 'No address details provided.';
+  }
+
   if (resource.value.slug === 'rsvps') return item.note || item.email || 'No note provided.';
   if (resource.value.slug === 'gallery-items') {
     return item.media_item?.description || item.gallery?.description || 'Gallery placement record.';
@@ -312,6 +351,21 @@ const summaryFor = (item = {}) => {
   return item.excerpt || item.description || item.body || item.message || item.note || item.subtitle || item.source || 'No summary provided.';
 };
 const metaLine = (item = {}) => {
+  if (resource.value.slug === 'orders') {
+    return [
+      item.email,
+      item.phone,
+      item.paid_at && `Paid ${formatDate(item.paid_at)}`,
+      item.created_at && `Placed ${formatDate(item.created_at)}`,
+    ]
+      .filter(Boolean)
+      .join(' / ');
+  }
+
+  if (resource.value.slug === 'pickup-points') {
+    return [`Order ${item.order ?? 0}`, item.contact_phone].filter(Boolean).join(' / ');
+  }
+
   if (resource.value.slug === 'galleries' && Array.isArray(item.media_items)) {
     return `${item.media_items.length} media ${item.media_items.length === 1 ? 'item' : 'items'}`;
   }
@@ -340,7 +394,10 @@ const badgesFor = (item = {}) => {
   const badges = [];
   if (item.is_featured) badges.push('Featured');
   if (item.is_active === true) badges.push('Active');
-  if (item.is_active === false && resource.value.slug === 'quotes') badges.push('Inactive');
+  if (item.is_active === false && ['quotes', 'pickup-points'].includes(resource.value.slug)) badges.push('Inactive');
+  if (resource.value.slug === 'orders' && item.status) {
+    badges.push(labelFor(item.status));
+  }
   if (resource.value.slug === 'rsvps') {
     badges.push(item.attending ? 'Attending' : 'Declined');
   }

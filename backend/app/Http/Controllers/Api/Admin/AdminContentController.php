@@ -16,11 +16,11 @@ use App\Http\Resources\ImpactMetricResource;
 use App\Http\Resources\JournalEntryResource;
 use App\Http\Resources\MediaItemResource;
 use App\Http\Resources\NewsletterSubscriberResource;
+use App\Http\Resources\OrderResource;
+use App\Http\Resources\PickupPointResource;
 use App\Http\Resources\PillarResource;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\QuoteResource;
-use App\Http\Resources\OrderResource;
-use App\Http\Resources\PickupPointResource;
 use App\Http\Resources\RsvpResource;
 use App\Models\Article;
 use App\Models\Book;
@@ -34,11 +34,11 @@ use App\Models\ImpactMetric;
 use App\Models\JournalEntry;
 use App\Models\MediaItem;
 use App\Models\NewsletterSubscriber;
+use App\Models\Order;
+use App\Models\PickupPoint;
 use App\Models\Pillar;
 use App\Models\Project;
 use App\Models\Quote;
-use App\Models\Order;
-use App\Models\PickupPoint;
 use App\Models\Rsvp;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -157,6 +157,48 @@ class AdminContentController extends Controller
         return response()->json(['data' => ['deleted' => true]]);
     }
 
+    public function exportOrders(): Response
+    {
+        $filename = 'femiowoyele-pre-orders-'.now()->toDateString().'.xls';
+        $headers = [
+            'Reference',
+            'Name',
+            'Email Address',
+            'Phone',
+            'Copies',
+            'Total Paid',
+            'Status',
+            'Pickup Point',
+            'Paid At',
+            'Placed At',
+        ];
+
+        $rows = Order::query()
+            ->with('pickupPoint')
+            ->latest()
+            ->get()
+            ->map(fn (Order $order) => [
+                ['value' => $order->reference],
+                ['value' => $order->name],
+                ['value' => $order->email],
+                ['value' => $order->phone],
+                ['value' => (string) $order->quantity],
+                ['value' => $order->formattedTotal()],
+                ['value' => ucfirst($order->status)],
+                ['value' => $order->pickupPoint?->name],
+                ['value' => $order->paid_at?->toDateTimeString()],
+                ['value' => $order->created_at?->toDateTimeString()],
+            ])
+            ->all();
+
+        return response($this->excelXml('Pre-orders', $headers, $rows), 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     private static function map(): array
     {
         return [
@@ -171,19 +213,14 @@ class AdminContentController extends Controller
             'quotes' => ['label' => 'Quotes', 'model' => Quote::class, 'resource' => QuoteResource::class],
             'convictions' => ['label' => 'Convictions', 'model' => Conviction::class, 'resource' => ConvictionResource::class],
             'content-blocks' => ['label' => 'Content Blocks', 'model' => ContentBlock::class, 'resource' => ContentBlockResource::class],
-            'rsvps' => ['label' => 'Launch RSVPs', 'model' => Rsvp::class, 'resource' => RsvpResource::class],
-            'orders' => ['label' => 'Pre-orders', 'model' => Order::class, 'resource' => OrderResource::class],
+            'rsvps' => ['label' => 'Launch RSVPs', 'model' => Rsvp::class, 'resource' => RsvpResource::class, 'readonly' => true],
+            'orders' => ['label' => 'Pre-orders', 'model' => Order::class, 'resource' => OrderResource::class, 'readonly' => true],
             'pickup-points' => ['label' => 'Pickup Points', 'model' => PickupPoint::class, 'resource' => PickupPointResource::class],
-            'contact-messages' => ['label' => 'Contact Messages', 'model' => ContactMessage::class, 'resource' => ContactMessageResource::class],
-            'newsletter-subscribers' => ['label' => 'Newsletter Subscribers', 'model' => NewsletterSubscriber::class, 'resource' => NewsletterSubscriberResource::class],
+            'contact-messages' => ['label' => 'Contact Messages', 'model' => ContactMessage::class, 'resource' => ContactMessageResource::class, 'readonly' => true],
+            'newsletter-subscribers' => ['label' => 'Newsletter Subscribers', 'model' => NewsletterSubscriber::class, 'resource' => NewsletterSubscriberResource::class, 'readonly' => true],
             'galleries' => ['label' => 'Galleries', 'model' => Gallery::class, 'resource' => GalleryResource::class],
             'gallery-items' => ['label' => 'Gallery Items', 'model' => GalleryItem::class, 'resource' => GalleryItemResource::class],
         ];
-    }
-
-    private static function readOnlyResources(): array
-    {
-        return ['rsvps', 'contact-messages', 'newsletter-subscribers'];
     }
 
     private function definition(string $resource): array
@@ -204,9 +241,9 @@ class AdminContentController extends Controller
     private function abortIfReadOnly(string $resource): void
     {
         abort_if(
-            in_array($resource, self::readOnlyResources(), true),
-            405,
-            'This resource is managed by public submissions and is read-only in the CMS.'
+            $this->definition($resource)['readonly'] ?? false,
+            403,
+            'This resource is created by the site and is read-only in the CMS.'
         );
     }
 

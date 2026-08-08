@@ -7,9 +7,20 @@ use Illuminate\Validation\Rule;
 
 class AdminContentRequest extends FormRequest
 {
+    private const READ_ONLY_WRITE_RESOURCES = [
+        'orders',
+        'rsvps',
+        'contact-messages',
+        'newsletter-subscribers',
+    ];
+
     public function authorize(): bool
     {
-        return $this->user()?->can('manage-content') ?? false;
+        if (! ($this->user()?->can('manage-content') ?? false)) {
+            return false;
+        }
+
+        return ! in_array((string) $this->route('resource'), self::READ_ONLY_WRITE_RESOURCES, true);
     }
 
     public function rules(): array

@@ -57,10 +57,12 @@ class PreOrderTest extends TestCase
 
     public function test_it_returns_somewhere_to_send_the_buyer(): void
     {
-        $this->postJson('/api/pre-order', ['name' => 'Ada', 'email' => 'ada@example.com', 'quantity' => 1])
+        $response = $this->postJson('/api/pre-order', ['name' => 'Ada', 'email' => 'ada@example.com', 'quantity' => 1])
             ->assertCreated()
             ->assertJsonPath('data.status', Order::STATUS_PENDING)
             ->assertJsonStructure(['meta' => ['authorization_url']]);
+
+        $this->assertArrayNotHasKey('id', $response->json('data'));
     }
 
     public function test_pickup_points_are_withheld_until_payment_succeeds(): void

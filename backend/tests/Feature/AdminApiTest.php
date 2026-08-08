@@ -92,9 +92,9 @@ class AdminApiTest extends TestCase
         ]);
         $subscriber = NewsletterSubscriber::create(['email' => 'reader@example.com', 'source' => 'footer']);
 
-        $this->deleteJson('/api/admin/rsvps/'.$rsvp->id)->assertStatus(405);
-        $this->deleteJson('/api/admin/contact-messages/'.$message->id)->assertStatus(405);
-        $this->deleteJson('/api/admin/newsletter-subscribers/'.$subscriber->id)->assertStatus(405);
+        $this->deleteJson('/api/admin/rsvps/'.$rsvp->id)->assertForbidden();
+        $this->deleteJson('/api/admin/contact-messages/'.$message->id)->assertForbidden();
+        $this->deleteJson('/api/admin/newsletter-subscribers/'.$subscriber->id)->assertForbidden();
 
         $this->assertDatabaseHas(Rsvp::class, ['id' => $rsvp->id]);
         $this->assertDatabaseHas(ContactMessage::class, ['id' => $message->id]);

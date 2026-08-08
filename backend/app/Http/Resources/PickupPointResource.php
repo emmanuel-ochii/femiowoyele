@@ -17,6 +17,10 @@ class PickupPointResource extends JsonResource
             'contact_phone' => $this->contact_phone,
             'opening_hours' => $this->opening_hours,
             'note' => $this->note,
+            // Must be returned: the admin form round-trips whatever it receives,
+            // so omitting these silently deactivates and re-orders the record.
+            'is_active' => (bool) $this->is_active,
+            'order' => (int) $this->order,
         ];
     }
 }
