@@ -23,13 +23,11 @@ return [
     | Amounts are held in minor units (kobo). Paystack charges in kobo, and
     | integers keep totals free of floating-point rounding.
     |
-    | TODO: confirm the real cover price before launch.
-    |
     */
 
     'currency' => env('PAYMENT_CURRENCY', 'NGN'),
     'currency_symbol' => env('PAYMENT_CURRENCY_SYMBOL', '₦'),
-    'book_price_minor' => (int) env('BOOK_PRICE_MINOR', 1500000),
+    'book_price_minor' => (int) env('BOOK_PRICE_MINOR', 999990),
 
     'max_quantity' => 20,
 

@@ -3,8 +3,8 @@ import { defineStore } from 'pinia';
 /**
  * Site navigation.
  *
- * Eleven top-level destinations is too many for a single bar, so the primary
- * nav collapses into four groups. `navigation` stays as a flat list for the
+   * Eleven top-level destinations is too many for a single bar, so the primary
+   * nav collapses into a few groups. `navigation` stays as a flat list for the
  * footer, sitemap, and mobile drawer.
  */
 export const useSiteStore = defineStore('site', {
@@ -54,10 +54,10 @@ export const useSiteStore = defineStore('site', {
           { label: 'Research & Ideas', to: '/research-ideas', description: 'Long-form essays and frameworks' },
           { label: 'Books', to: '/books', description: 'Entrusted and works in progress' },
           { label: 'The Entrusted launch', to: '/entrusted', description: '18 August 2026, Ikeja, Lagos' },
-          { label: 'Pre-order Entrusted', to: '/pre-order', description: 'Reserve your copy' },
           { label: 'Journal', to: '/journal', description: 'Shorter notes between publications' },
         ],
       },
+      { label: 'Pre-order', to: '/pre-order', items: [] },
       // No `items` renders a direct link rather than a dropdown.
       { label: 'Speaking', to: '/speaking', items: [] },
     ],

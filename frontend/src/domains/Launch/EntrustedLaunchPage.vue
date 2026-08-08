@@ -30,12 +30,12 @@
               <span aria-hidden="true" class="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-sand-300/70 to-transparent"></span>
               <img
                 :src="image"
-                srcset="/images/entrusted-mock-sm.jpg 700w, /images/entrusted-mock.jpg 1200w"
+                srcset="/images/entrusted-mock-sm.jpg 700w, /images/entrusted-mock.jpg 1280w"
                 sizes="(min-width: 1024px) 36vw, (min-width: 640px) 24rem, 84vw"
                 :alt="`Cover of ${title} by Femi Owoyele`"
-                width="1200"
-                height="1709"
-                class="relative w-full mix-blend-multiply"
+                width="1280"
+                height="1255"
+                class="relative w-full"
                 fetchpriority="high"
                 decoding="async"
               />
