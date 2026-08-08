@@ -12,7 +12,7 @@
 defineProps({
   message: {
     type: String,
-    default: 'Payments are simulated. No card is charged and no money changes hands.',
+    // default: 'Payments are simulated. No card is charged and no money changes hands.',
   },
 });
 </script>
