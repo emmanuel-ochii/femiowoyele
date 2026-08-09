@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ContentBlock;
 use App\Models\Rsvp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -10,6 +11,61 @@ use Tests\TestCase;
 class RsvpTest extends TestCase
 {
     use RefreshDatabase;
+
+    private function setDeadline(?string $closesAt): void
+    {
+        ContentBlock::updateOrCreate(
+            ['slug' => 'home.launch'],
+            ['context' => 'home', 'title' => 'Entrusted', 'body' => '', 'order' => 4, 'meta' => [
+                'book_slug' => 'entrusted',
+                'rsvp_closes_at' => $closesAt,
+            ]],
+        );
+    }
+
+    public function test_rsvps_are_refused_once_the_deadline_has_passed(): void
+    {
+        $this->setDeadline('2026-08-11T23:59:59+01:00');
+        $this->travelTo('2026-08-12 09:00:00');
+
+        $this->postJson('/api/rsvp', ['name' => 'Late Guest', 'email' => 'late@example.com', 'attending' => true])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('attending');
+
+        $this->assertDatabaseCount('rsvps', 0);
+    }
+
+    public function test_rsvps_are_accepted_up_to_the_end_of_the_deadline_day(): void
+    {
+        $this->setDeadline('2026-08-11T23:59:59+01:00');
+        // 11 August is inclusive: responses are open all day.
+        $this->travelTo('2026-08-11 22:30:00');
+
+        $this->postJson('/api/rsvp', ['name' => 'Just In Time', 'email' => 'intime@example.com', 'attending' => true])
+            ->assertCreated();
+    }
+
+    public function test_an_existing_guest_cannot_change_their_answer_after_the_deadline(): void
+    {
+        $this->setDeadline('2026-08-11T23:59:59+01:00');
+        Rsvp::create(['name' => 'Ada', 'email' => 'ada@example.com', 'attending' => true]);
+
+        $this->travelTo('2026-08-12 09:00:00');
+
+        $this->postJson('/api/rsvp', ['name' => 'Ada', 'email' => 'ada@example.com', 'attending' => false])
+            ->assertStatus(422);
+
+        $this->assertTrue(Rsvp::where('email', 'ada@example.com')->value('attending'));
+    }
+
+    public function test_rsvps_stay_open_when_no_deadline_is_configured(): void
+    {
+        $this->setDeadline(null);
+        $this->travelTo('2030-01-01 09:00:00');
+
+        $this->postJson('/api/rsvp', ['name' => 'No Deadline', 'email' => 'none@example.com', 'attending' => true])
+            ->assertCreated();
+    }
 
     public function test_it_records_an_rsvp(): void
     {

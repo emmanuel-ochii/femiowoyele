@@ -56,10 +56,25 @@
               </BaseButton>
             </div>
 
+            <div v-else-if="rsvpClosed" class="text-center">
+              <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-navy-900/15 text-ink-faint">
+                <AppIcon name="mail" :size="22" />
+              </span>
+              <h2 class="display-4 mt-6 text-navy-900">RSVPs have closed.</h2>
+              <p class="body-copy mx-auto mt-4 max-w-md">
+                Responses closed on {{ closesLabel }} so that final numbers could be confirmed with the venue. If you
+                still hope to join us, please get in touch and we will do our best.
+              </p>
+              <BaseButton to="/contact" variant="primary" class="mt-8" icon="arrowRight">Get in touch</BaseButton>
+            </div>
+
             <template v-else>
               <p class="eyebrow">RSVP</p>
               <h2 class="display-4 mt-4 text-navy-900">Kindly confirm your attendance</h2>
               <p class="body-copy mt-3">Thank you for your kind consideration of this invitation.</p>
+              <p v-if="closesLabel" class="mt-4 border-l-2 border-gold-500 bg-gold-50 px-4 py-3 text-[0.875rem] font-medium leading-6 text-gold-800">
+                Please respond by {{ closesLabel }}.
+              </p>
               <div class="mt-9">
                 <RsvpForm />
               </div>
@@ -74,12 +89,14 @@
 <script setup>
 import { computed } from 'vue';
 import RsvpForm from '../../components/forms/RsvpForm.vue';
+import AppIcon from '../../components/ui/AppIcon.vue';
 import BaseButton from '../../components/ui/BaseButton.vue';
 import ErrorState from '../../components/ui/ErrorState.vue';
 import LoadingState from '../../components/ui/LoadingState.vue';
 import { useApiPage } from '../../composables/useApiPage';
 import { useCountdown } from '../../composables/useCountdown';
 import { usePageMeta } from '../../composables/usePageMeta';
+import { formatDate } from '../../utils/format';
 
 const { payload, loading, error, retry } = useApiPage('/launch');
 
@@ -97,6 +114,10 @@ const intro = computed(
 );
 
 const { parts, hasPassed, isToday } = useCountdown(() => meta.value.starts_at);
+
+// RSVPs close before the evening itself, so the deadline gets its own clock.
+const { hasPassed: rsvpClosed } = useCountdown(() => meta.value.rsvp_closes_at);
+const closesLabel = computed(() => meta.value.rsvp_closes_label || formatDate(meta.value.rsvp_closes_at));
 
 const countdownLabel = computed(() => {
   if (isToday.value) return 'Today';
