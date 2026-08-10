@@ -11,8 +11,8 @@ use App\Models\Gallery;
 use App\Models\ImpactMetric;
 use App\Models\JournalEntry;
 use App\Models\MediaItem;
-use App\Models\Pillar;
 use App\Models\PickupPoint;
+use App\Models\Pillar;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Models\User;
@@ -464,12 +464,12 @@ class DatabaseSeeder extends Seeder
                 'context' => 'home',
                 'slug' => 'home.launch',
                 'title' => 'Entrusted',
-                'body' => 'On the evening of his fortieth birthday, Femi Owoyele will unveil his first book. The two occasions belong together: forty years of being formed, and a book about what it means to be handed something worth keeping.',
+                'body' => 'Femi Owoyele will unveil his first book, Entrusted, in an intimate evening shaped around stewardship, responsibility, and the invitation to build beyond ourselves.',
                 'meta' => [
                     // Swapped in automatically once `starts_at` has passed, so the
                     // section stops speaking in the future tense on its own.
-                    'body_after' => 'Entrusted was unveiled on the evening of Femi Owoyele\'s fortieth birthday, before family, friends, mentors, and the builders who have shaped the work. The two occasions belonged together: forty years of being formed, and a book about what it means to be handed something worth keeping.',
-                    'occasion' => 'Celebrating Forty Years',
+                    'body_after' => 'Entrusted was unveiled before family, friends, mentors, and the builders who have shaped the work, opening a wider conversation about stewardship, responsibility, and meaningful contribution.',
+                    'occasion' => 'The Entrusted Launch',
                     'tagline' => 'An evening of gratitude and great beginnings',
                     'subtitle' => 'Lessons, responsibilities and truths for a life of legacy',
                     // ISO-8601 with the West Africa Time offset — the countdown and

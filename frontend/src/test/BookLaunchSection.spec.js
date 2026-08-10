@@ -16,9 +16,9 @@ const router = createRouter({
 const launchBlock = (startsAt) => ({
   slug: 'home.launch',
   title: 'Entrusted',
-  body: 'On the evening of his fortieth birthday, Femi Owoyele will unveil his first book.',
+  body: 'Femi Owoyele will unveil his first book, Entrusted, in an intimate evening shaped around stewardship.',
   meta: {
-    occasion: 'Celebrating Forty Years',
+    occasion: 'The Entrusted Launch',
     subtitle: 'Lessons, responsibilities and truths for a life of legacy',
     starts_at: startsAt,
     date_label: 'Tuesday, 18 August 2026',

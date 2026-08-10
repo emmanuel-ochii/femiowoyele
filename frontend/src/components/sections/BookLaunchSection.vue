@@ -38,13 +38,6 @@
             />
           </div>
 
-          <!-- Fortieth-birthday seal, the one overtly celebratory mark. -->
-          <div
-            class="absolute -right-5 -top-7 flex h-24 w-24 flex-col items-center justify-center rounded-full border border-gold-400/60 bg-navy-950 text-center shadow-lift sm:-right-8 sm:-top-9 sm:h-28 sm:w-28"
-          >
-            <span class="font-serif text-3xl leading-none text-gold-400 sm:text-4xl">40</span>
-            <span class="mt-1.5 text-[0.55rem] font-semibold uppercase tracking-[0.2em] text-white/60">Years</span>
-          </div>
         </figure>
 
         <!-- ---------------------------------------------------- the details -->

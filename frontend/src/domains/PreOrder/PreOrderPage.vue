@@ -148,7 +148,7 @@
                 leadership, faith, enterprise and impact.
               </p>
               <p>
-                As he approaches 40, some of those convictions come together in his first book:
+                Those convictions now come together in his first book:
                 <span class="font-serif text-lg italic text-gold-300">Entrusted</span>.
               </p>
               <p>
@@ -214,7 +214,6 @@ const entrustedTags = [
   '#Entrusted',
   '#EntrustedBook',
   '#FemiOwoyele',
-  '#FemiAt40',
   '#Stewardship',
   '#Purpose',
   '#BuildTomorrow',

@@ -1,7 +1,7 @@
 @extends('mail.layout')
 
 @section('title', 'Thank You for Your RSVP')
-@section('eyebrow', 'Celebrating Forty Years · RSVP')
+@section('eyebrow', 'Entrusted Launch · RSVP')
 @section('preview', 'Thank you for your RSVP.')
 @section('footer', 'You are receiving this because you responded to an invitation from Femi Owoyele. Replies reach the event team.')
 

@@ -41,12 +41,6 @@
               />
             </div>
 
-            <div
-              class="absolute -right-5 -top-7 flex h-24 w-24 flex-col items-center justify-center rounded-full border border-gold-400/60 bg-navy-950 text-center shadow-lift sm:-right-8 sm:-top-9 sm:h-28 sm:w-28"
-            >
-              <span class="font-serif text-3xl leading-none text-gold-400 sm:text-4xl">40</span>
-              <span class="mt-1.5 text-[0.55rem] font-semibold uppercase tracking-[0.2em] text-white/60">Years</span>
-            </div>
           </figure>
 
           <!-- The event -->
@@ -81,12 +75,12 @@
       </div>
     </section>
 
-    <!-- =================================================== the two occasions -->
+    <!-- ===================================================== launch meaning -->
     <SectionWrapper>
       <SectionHeading
-        eyebrow="Why the two belong together"
-        title="A birthday and a book, on the same evening."
-        lead="Forty years of being formed, and a book about what it means to be handed something worth keeping."
+        eyebrow="Why the launch matters"
+        title="A first book entering public conversation."
+        lead="An evening shaped around stewardship, responsibility, and the invitation to build beyond ourselves."
       />
 
       <div class="mt-14 grid [&>*]:-mb-px [&>*]:-mr-px md:grid-cols-3">
@@ -249,31 +243,31 @@ const details = computed(() =>
 
 const strands = [
   {
-    title: 'Forty years',
-    description:
-      'A milestone marked the way the work has always been done: quietly, with the people who shaped it in the room.',
-  },
-  {
     title: 'A first book',
     description:
-      'Entrusted gathers what four decades taught about carrying responsibility that belongs to somebody else.',
+      'Entrusted gathers convictions formed through years of building, leading, teaching, mentoring, and public work.',
+  },
+  {
+    title: 'A public invitation',
+    description:
+      'The launch opens a wider conversation about stewardship, purpose, responsibility, and meaningful contribution.',
   },
   {
     title: 'One evening',
     description:
-      'Gratitude for what has been received, and a beginning for what the book is meant to start in other people.',
+      'Gratitude for what has shaped the work, and a beginning for what the book is meant to start in other people.',
   },
 ];
 
 const runOfShow = [
   'Arrival and welcome from 4:00 p.m.',
-  'Reflections on forty years, from family, friends, and mentors.',
+  'Reflections from family, friends, mentors, and builders connected to the work.',
   'The unveiling of Entrusted, and a first reading from the book.',
   'Dinner, and time to greet the author.',
 ];
 
 usePageMeta(() => ({
   title: `${title.value} — the launch`,
-  description: `${title.value}: ${subtitle.value}. Unveiled on ${dateLabel.value} at ${meta.value.venue || 'Lagos'}, alongside Femi Owoyele's fortieth birthday.`,
+  description: `${title.value}: ${subtitle.value}. Unveiled on ${dateLabel.value} at ${meta.value.venue || 'Lagos'}.`,
 }));
 </script>
