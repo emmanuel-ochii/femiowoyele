@@ -257,7 +257,14 @@ const onSubmit = handleSubmit(async (values) => {
     });
 
     // Mirrors a hosted checkout: the provider tells us where to send the buyer.
-    router.push(response.meta.authorization_url);
+    const authorizationUrl = response.meta.authorization_url;
+
+    if (/^https?:\/\//i.test(authorizationUrl)) {
+      window.location.assign(authorizationUrl);
+      return;
+    }
+
+    router.push(authorizationUrl);
   } catch (caught) {
     serverError.value =
       caught.response?.data?.message || 'Your pre-order could not be started. Please try again shortly.';

@@ -102,10 +102,11 @@
             {{ message || 'The payment was not completed, so nothing has been charged. Your reserved copy is held under reference ' + order.reference + '.' }}
           </p>
           <div class="mt-8 flex flex-wrap gap-x-4 gap-y-3">
-            <BaseButton :to="`/pre-order/checkout?reference=${reference}`" variant="primary" icon="arrowRight">
+            <BaseButton v-if="usesMockCheckout" :to="`/pre-order/checkout?reference=${reference}`" variant="primary" icon="arrowRight">
               Try payment again
             </BaseButton>
-            <BaseButton to="/pre-order" variant="ghost">Start over</BaseButton>
+            <BaseButton v-else to="/pre-order" variant="primary" icon="arrowRight">Start a new payment</BaseButton>
+            <BaseButton v-if="usesMockCheckout" to="/pre-order" variant="ghost">Start over</BaseButton>
           </div>
         </div>
       </div>
@@ -134,6 +135,7 @@ const error = ref(null);
 
 const isPaid = computed(() => order.value.status === 'paid');
 const firstName = computed(() => String(order.value.name || '').split(' ')[0] || 'friend');
+const usesMockCheckout = computed(() => order.value.payment_provider === 'mock');
 
 const tableHeads = ['Pickup point', 'Address', 'Opening hours', 'Contact'];
 

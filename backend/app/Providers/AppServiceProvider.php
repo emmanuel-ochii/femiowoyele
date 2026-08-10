@@ -3,11 +3,12 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Payments\MockGateway;
+use App\Payments\PaymentGateway;
+use App\Payments\PaystackGateway;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use App\Payments\MockGateway;
-use App\Payments\PaymentGateway;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,11 +16,12 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Resolved from config so adding Paystack later is a driver entry plus
-        // one class, with no change to the pre-order flow itself.
+        // Resolved from config so local mock payments and production Paystack
+        // payments use the same pre-order flow.
         $this->app->bind(PaymentGateway::class, function () {
             return match (config('payments.driver')) {
-                default => new MockGateway(),
+                'paystack' => new PaystackGateway,
+                default => new MockGateway,
             };
         });
 

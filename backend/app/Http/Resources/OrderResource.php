@@ -27,7 +27,7 @@ class OrderResource extends JsonResource
             'currency' => $this->currency,
             'status' => $this->status,
             'paid_at' => $this->paid_at?->toIso8601String(),
-            'payment_provider' => $this->when($canManageContent, $this->payment_provider),
+            'payment_provider' => $this->payment_provider,
             'created_at' => $this->when($canManageContent, $this->created_at?->toIso8601String()),
             'paid_at_display' => $this->when($canManageContent, $this->displayDateTime($this->paid_at)),
             'created_at_display' => $this->when($canManageContent, $this->displayDateTime($this->created_at)),

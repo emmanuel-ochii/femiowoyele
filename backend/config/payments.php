@@ -41,6 +41,20 @@ return [
         'secret_key' => env('PAYSTACK_SECRET_KEY'),
         'public_key' => env('PAYSTACK_PUBLIC_KEY'),
         'base_url' => env('PAYSTACK_BASE_URL', 'https://api.paystack.co'),
+        'channels' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('PAYSTACK_CHANNELS', '')),
+        ))),
+        'webhook_ips' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('PAYSTACK_WEBHOOK_IPS', '52.31.139.75,52.49.173.169,52.214.14.220')),
+        ))),
+        // Signature verification is always enforced. IP whitelisting is useful
+        // in production, but defaults off so local tunnels and proxies still work.
+        'enforce_webhook_ip_whitelist' => filter_var(
+            env('PAYSTACK_ENFORCE_WEBHOOK_IP_WHITELIST', false),
+            FILTER_VALIDATE_BOOL,
+        ),
     ],
 
     /*

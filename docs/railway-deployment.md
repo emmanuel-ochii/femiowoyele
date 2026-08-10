@@ -465,6 +465,17 @@ AWS_SECRET_ACCESS_KEY=
 AWS_DEFAULT_REGION=us-east-1
 AWS_BUCKET=
 AWS_USE_PATH_STYLE_ENDPOINT=false
+
+PAYMENT_DRIVER=paystack
+PAYMENT_CURRENCY=NGN
+PAYMENT_CURRENCY_SYMBOL=₦
+BOOK_PRICE_MINOR=999990
+PAYSTACK_PUBLIC_KEY=REPLACE_WITH_PAYSTACK_TEST_OR_LIVE_PUBLIC_KEY
+PAYSTACK_SECRET_KEY=REPLACE_WITH_PAYSTACK_TEST_OR_LIVE_SECRET_KEY
+PAYSTACK_BASE_URL=https://api.paystack.co
+PAYSTACK_CHANNELS=
+PAYSTACK_WEBHOOK_IPS=52.31.139.75,52.49.173.169,52.214.14.220
+PAYSTACK_ENFORCE_WEBHOOK_IP_WHITELIST=false
 ```
 
 Replace:
@@ -482,6 +493,11 @@ Important notes:
 - `MAIL_SCHEME=smtp` plus port `587` uses STARTTLS with Resend SMTP.
 - `FILESYSTEM_DISK=local` is acceptable until CMS media uploads matter.
 - Railway filesystems are ephemeral for app services, so production media should eventually use S3-compatible storage.
+- `PAYMENT_DRIVER=paystack` enables real Paystack checkout. Use `mock` only for local test checkout.
+- `BOOK_PRICE_MINOR=999990` means ₦9,999.90 because Paystack expects kobo.
+- Keep `PAYSTACK_SECRET_KEY` private. Never put it in the frontend service, GitHub, or any client-side `.env`.
+- Start with Paystack test keys. Switch to live keys only after test payments and webhooks are confirmed.
+- Leave `PAYSTACK_ENFORCE_WEBHOOK_IP_WHITELIST=false` until the webhook works behind Railway/proxying. Signature verification is still enforced by the app.
 
 ### Step 7: Deploy Backend
 
@@ -1345,7 +1361,84 @@ Redeploy both services after variable changes:
 
 The frontend must redeploy because Vite variables are baked into the static build.
 
-## Phase 11: Final Verification
+## Phase 11: Configure Paystack
+
+Do this after `https://api.femiowoyele.com/api/health` works.
+
+### Step 1: Confirm Railway Backend Variables
+
+In the Railway backend service, confirm:
+
+```dotenv
+PAYMENT_DRIVER=paystack
+BOOK_PRICE_MINOR=999990
+PAYSTACK_PUBLIC_KEY=your_paystack_public_key
+PAYSTACK_SECRET_KEY=your_paystack_secret_key
+PAYSTACK_BASE_URL=https://api.paystack.co
+```
+
+Use Paystack test keys first. Do not use live keys until the full test flow works.
+
+### Step 2: Add The Webhook URL In Paystack
+
+In the Paystack dashboard:
+
+1. Open `Settings`.
+2. Open `API Keys & Webhooks`.
+3. Add this webhook URL:
+
+```text
+https://api.femiowoyele.com/api/webhooks/paystack
+```
+
+4. Save changes.
+
+The backend verifies the `x-paystack-signature` header using `PAYSTACK_SECRET_KEY` before processing any webhook.
+
+### Step 3: Test The Full Payment Flow
+
+1. Open:
+
+```text
+https://femiowoyele.com/pre-order
+```
+
+2. Submit a test pre-order.
+3. Confirm Paystack checkout opens.
+4. Complete a Paystack test payment.
+5. Confirm the browser returns to:
+
+```text
+https://femiowoyele.com/pre-order/complete?reference=...
+```
+
+6. Confirm the page shows the order as paid.
+7. Confirm the order appears as paid in the admin studio.
+8. Confirm the buyer and internal team receive the expected emails.
+
+### Step 4: Optional IP Whitelisting
+
+Paystack signs every webhook, and this project verifies that signature. Paystack also publishes webhook IPs:
+
+```text
+52.31.139.75
+52.49.173.169
+52.214.14.220
+```
+
+Only set this after webhook testing works:
+
+```dotenv
+PAYSTACK_ENFORCE_WEBHOOK_IP_WHITELIST=true
+```
+
+If Railway/proxy networking causes valid webhooks to be rejected, switch it back to:
+
+```dotenv
+PAYSTACK_ENFORCE_WEBHOOK_IP_WHITELIST=false
+```
+
+## Phase 12: Final Verification
 
 ### Backend Health
 

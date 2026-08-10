@@ -7,21 +7,23 @@ use App\Http\Requests\PreOrderRequest;
 use App\Http\Resources\BookResource;
 use App\Http\Resources\OrderResource;
 use App\Http\Resources\PickupPointResource;
-use App\Mail\OrderPlaced;
-use App\Mail\OrderReceipt;
 use App\Models\Book;
 use App\Models\ContentBlock;
 use App\Models\Order;
 use App\Models\PickupPoint;
 use App\Payments\PaymentGateway;
-use App\Support\Notifier;
+use App\Support\OrderPaymentRecorder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Throwable;
 
 class PreOrderController extends Controller
 {
-    public function __construct(private readonly PaymentGateway $gateway) {}
+    public function __construct(
+        private readonly PaymentGateway $gateway,
+        private readonly OrderPaymentRecorder $payments,
+    ) {}
 
     /** Everything the pre-order page needs to render. */
     public function show(): JsonResponse
@@ -76,7 +78,22 @@ class PreOrderController extends Controller
         $callback = rtrim((string) config('app.frontend_url', config('app.url')), '/')
             .config('payments.callback_path');
 
-        $payment = $this->gateway->initialize($order, $callback);
+        try {
+            $payment = $this->gateway->initialize($order, $callback);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            $order->update([
+                'status' => Order::STATUS_FAILED,
+                'payment_meta' => [
+                    'initialization_error' => $exception::class,
+                ],
+            ]);
+
+            return response()->json([
+                'message' => 'Payment could not be started. Please try again shortly.',
+            ], 502);
+        }
 
         $order->update(['payment_reference' => $payment['reference']]);
 
@@ -102,16 +119,7 @@ class PreOrderController extends Controller
 
         $result = $this->gateway->verify($reference);
 
-        $order->update([
-            'status' => $result->successful ? Order::STATUS_PAID : Order::STATUS_FAILED,
-            'paid_at' => $result->successful ? now() : null,
-            'payment_meta' => $result->meta,
-        ]);
-
-        if ($result->successful) {
-            Notifier::send(new OrderPlaced($order));
-            Notifier::sendTo($order->email, new OrderReceipt($order));
-        }
+        $order = $this->payments->record($order, $result);
 
         return $this->orderResponse($order, $result->message);
     }

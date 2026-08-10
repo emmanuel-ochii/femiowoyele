@@ -5,8 +5,10 @@ namespace Tests\Feature;
 use App\Mail\OrderPlaced;
 use App\Mail\OrderReceipt;
 use App\Models\Order;
+use App\Models\PaymentEvent;
 use App\Models\PickupPoint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -160,5 +162,224 @@ class PreOrderTest extends TestCase
         $this->assertStringContainsString('Launch evening', $html);
         $this->assertStringContainsString($reference, $html);
         $this->assertStringNotContainsString('Retired point', $html);
+    }
+
+    public function test_paystack_initialization_returns_the_provider_checkout_url(): void
+    {
+        config([
+            'payments.driver' => 'paystack',
+            'payments.paystack.secret_key' => 'sk_test_123',
+        ]);
+
+        Http::fake([
+            'https://api.paystack.co/transaction/initialize' => Http::response([
+                'status' => true,
+                'message' => 'Authorization URL created',
+                'data' => [
+                    'authorization_url' => 'https://checkout.paystack.com/test-access-code',
+                    'access_code' => 'test-access-code',
+                    'reference' => 'ENT-PAYSTACK1',
+                ],
+            ]),
+        ]);
+
+        $response = $this->postJson('/api/pre-order', [
+            'name' => 'Ada Builder',
+            'email' => 'ada@example.com',
+            'quantity' => 1,
+        ])->assertCreated();
+
+        $this->assertSame('https://checkout.paystack.com/test-access-code', $response->json('meta.authorization_url'));
+
+        $order = Order::where('reference', $response->json('data.reference'))->firstOrFail();
+        $this->assertSame('paystack', $order->payment_provider);
+        $this->assertSame('ENT-PAYSTACK1', $order->payment_reference);
+
+        Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer sk_test_123')
+            && $request['email'] === 'ada@example.com'
+            && $request['amount'] === '1500000'
+            && $request['reference'] === $order->reference
+            && $request['callback_url'] === config('app.frontend_url').'/pre-order/complete');
+    }
+
+    public function test_paystack_verification_rejects_an_amount_mismatch(): void
+    {
+        config([
+            'payments.driver' => 'paystack',
+            'payments.paystack.secret_key' => 'sk_test_123',
+        ]);
+
+        $order = Order::create([
+            'reference' => 'ENT-AMOUNTBAD',
+            'name' => 'Ada Builder',
+            'email' => 'ada@example.com',
+            'quantity' => 1,
+            'unit_amount' => 1500000,
+            'total_amount' => 1500000,
+            'status' => Order::STATUS_PENDING,
+            'payment_provider' => 'paystack',
+            'payment_reference' => 'ENT-AMOUNTBAD',
+            'currency' => 'NGN',
+        ]);
+
+        Http::fake([
+            'https://api.paystack.co/transaction/verify/*' => Http::response([
+                'status' => true,
+                'message' => 'Verification successful',
+                'data' => [
+                    'status' => 'success',
+                    'reference' => 'ENT-AMOUNTBAD',
+                    'amount' => 100,
+                    'currency' => 'NGN',
+                ],
+            ]),
+        ]);
+
+        $this->postJson("/api/pre-order/{$order->reference}/verify")
+            ->assertOk()
+            ->assertJsonPath('data.status', Order::STATUS_FAILED);
+
+        $this->assertNull($order->fresh()->paid_at);
+    }
+
+    public function test_paystack_temporary_verification_errors_leave_the_order_pending(): void
+    {
+        config([
+            'payments.driver' => 'paystack',
+            'payments.paystack.secret_key' => 'sk_test_123',
+        ]);
+
+        $order = Order::create([
+            'reference' => 'ENT-PENDING1',
+            'name' => 'Ada Builder',
+            'email' => 'ada@example.com',
+            'quantity' => 1,
+            'unit_amount' => 1500000,
+            'total_amount' => 1500000,
+            'status' => Order::STATUS_PENDING,
+            'payment_provider' => 'paystack',
+            'payment_reference' => 'ENT-PENDING1',
+            'currency' => 'NGN',
+        ]);
+
+        Http::fake([
+            'https://api.paystack.co/transaction/verify/*' => Http::response([
+                'status' => false,
+                'message' => 'Temporary gateway error',
+            ], 500),
+        ]);
+
+        $this->postJson("/api/pre-order/{$order->reference}/verify")
+            ->assertOk()
+            ->assertJsonPath('data.status', Order::STATUS_PENDING);
+
+        $this->assertNull($order->fresh()->paid_at);
+    }
+
+    public function test_paystack_webhook_marks_the_order_paid_once(): void
+    {
+        Mail::fake();
+
+        config([
+            'payments.driver' => 'paystack',
+            'payments.paystack.secret_key' => 'sk_test_123',
+        ]);
+
+        $order = Order::create([
+            'reference' => 'ENT-WEBHOOK1',
+            'name' => 'Ada Builder',
+            'email' => 'ada@example.com',
+            'quantity' => 1,
+            'unit_amount' => 1500000,
+            'total_amount' => 1500000,
+            'status' => Order::STATUS_PENDING,
+            'payment_provider' => 'paystack',
+            'payment_reference' => 'ENT-WEBHOOK1',
+            'currency' => 'NGN',
+        ]);
+
+        Http::fake([
+            'https://api.paystack.co/transaction/verify/*' => Http::response([
+                'status' => true,
+                'message' => 'Verification successful',
+                'data' => [
+                    'id' => 4099260516,
+                    'status' => 'success',
+                    'reference' => 'ENT-WEBHOOK1',
+                    'amount' => 1500000,
+                    'currency' => 'NGN',
+                    'channel' => 'card',
+                ],
+            ]),
+        ]);
+
+        $payload = [
+            'event' => 'charge.success',
+            'data' => [
+                'id' => 4099260516,
+                'reference' => 'ENT-WEBHOOK1',
+                'amount' => 1500000,
+                'currency' => 'NGN',
+                'status' => 'success',
+            ],
+        ];
+
+        $this->postPaystackWebhook($payload)->assertOk();
+        $this->postPaystackWebhook($payload)->assertOk();
+
+        $this->assertSame(Order::STATUS_PAID, $order->fresh()->status);
+        $this->assertNotNull($order->fresh()->paid_at);
+        $this->assertDatabaseHas(PaymentEvent::class, [
+            'provider' => 'paystack',
+            'event_id' => '4099260516',
+            'processing_status' => 'processed',
+        ]);
+        Mail::assertSent(OrderReceipt::class, 1);
+        Mail::assertSent(OrderPlaced::class, 1);
+    }
+
+    public function test_paystack_webhook_rejects_an_invalid_signature(): void
+    {
+        config(['payments.paystack.secret_key' => 'sk_test_123']);
+
+        $payload = [
+            'event' => 'charge.success',
+            'data' => ['id' => 4099260517, 'reference' => 'ENT-BADSIGN'],
+        ];
+
+        $this->call(
+            'POST',
+            '/api/webhooks/paystack',
+            [],
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_X_PAYSTACK_SIGNATURE' => 'not-valid',
+            ],
+            json_encode($payload),
+        )->assertUnauthorized();
+
+        $this->assertDatabaseCount('payment_events', 0);
+    }
+
+    private function postPaystackWebhook(array $payload)
+    {
+        $raw = json_encode($payload);
+
+        return $this->call(
+            'POST',
+            '/api/webhooks/paystack',
+            [],
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_X_PAYSTACK_SIGNATURE' => hash_hmac('sha512', $raw, config('payments.paystack.secret_key')),
+            ],
+            $raw,
+        );
     }
 }
