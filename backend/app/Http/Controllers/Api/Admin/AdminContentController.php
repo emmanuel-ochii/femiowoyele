@@ -102,7 +102,7 @@ class AdminContentController extends Controller
             ])
             ->all();
 
-        return response($this->excelXml('Launch RSVPs', $headers, $rows), 200, [
+        return response($this->excelXml('Archived RSVPs', $headers, $rows), 200, [
             'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
             'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
@@ -213,7 +213,7 @@ class AdminContentController extends Controller
             'quotes' => ['label' => 'Quotes', 'model' => Quote::class, 'resource' => QuoteResource::class],
             'convictions' => ['label' => 'Convictions', 'model' => Conviction::class, 'resource' => ConvictionResource::class],
             'content-blocks' => ['label' => 'Content Blocks', 'model' => ContentBlock::class, 'resource' => ContentBlockResource::class],
-            'rsvps' => ['label' => 'Launch RSVPs', 'model' => Rsvp::class, 'resource' => RsvpResource::class, 'readonly' => true],
+            'rsvps' => ['label' => 'Archived RSVPs', 'model' => Rsvp::class, 'resource' => RsvpResource::class, 'readonly' => true],
             'orders' => ['label' => 'Pre-orders', 'model' => Order::class, 'resource' => OrderResource::class, 'readonly' => true],
             'pickup-points' => ['label' => 'Pickup Points', 'model' => PickupPoint::class, 'resource' => PickupPointResource::class],
             'contact-messages' => ['label' => 'Contact Messages', 'model' => ContactMessage::class, 'resource' => ContactMessageResource::class, 'readonly' => true],

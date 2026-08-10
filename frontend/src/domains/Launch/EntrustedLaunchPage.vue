@@ -65,8 +65,8 @@
             </div>
 
             <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-              <BaseButton v-if="!hasPassed && !rsvpClosed" href="#rsvp" variant="gold" size="lg" icon="arrowRight">
-                Request an invitation
+              <BaseButton to="/pre-order" variant="gold" size="lg" icon="arrowRight">
+                {{ hasPassed ? 'Reserve a copy' : 'Pre-order Entrusted' }}
               </BaseButton>
               <BaseButton :to="`/books/${bookSlug}`" variant="outline-light" size="lg">About the book</BaseButton>
             </div>
@@ -140,55 +140,20 @@
       </div>
     </SectionWrapper>
 
-    <!-- ============================================================== rsvp -->
-    <SectionWrapper v-if="!hasPassed && !rsvpClosed" id="rsvp" tone="navy">
-      <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
-        <div v-reveal class="lg:col-span-5">
-          <p class="eyebrow !text-gold-400">Request an invitation</p>
-          <h2 class="display-3 mt-6 text-balance text-white">Seats are limited.</h2>
-          <p class="mt-5 text-[0.95rem] leading-7 text-white/65">
-            The evening is an intimate one. Confirm your name and whether you can join us, and the team will hold your
-            place and send the arrival details.
-          </p>
-          <p v-if="closesLabel" class="mt-6 border-l-2 border-gold-500 bg-gold-500/12 px-4 py-3 text-[0.875rem] font-medium leading-6 text-gold-200">
-            Please respond by {{ closesLabel }}.
-          </p>
-
-          <div v-if="rsvpPhone" class="mt-10 border-t border-white/15 pt-6">
-            <p class="text-micro font-semibold uppercase text-gold-400">Or RSVP directly</p>
-            <a
-              :href="`tel:${rsvpPhone.replace(/\s+/g, '')}`"
-              class="mt-2 inline-block font-serif text-2xl text-white transition-colors hover:text-gold-300"
-            >
-              {{ rsvpPhone }}
-            </a>
-          </div>
-        </div>
-
-        <div v-reveal="80" class="lg:col-span-7">
-          <div class="border border-white/15 bg-navy-950/45 p-7 sm:p-10">
-            <RsvpForm dark />
-          </div>
-        </div>
-      </div>
-    </SectionWrapper>
-
     <CtaBand
-      v-else
       eyebrow="The book"
-      :title="`${title} is out now.`"
-      description="Read what the book argues, or get in touch about interviews, review copies, and bulk orders."
-      :primary-to="`/books/${bookSlug}`"
-      primary-label="About the book"
-      secondary-to="/contact"
-      secondary-label="Get in touch"
+      :title="hasPassed ? `${title} is now in public conversation.` : `${title} is available for pre-order.`"
+      description="Reserve your copy, read what the book argues, or get in touch about interviews, review copies, and bulk orders."
+      primary-to="/pre-order"
+      :primary-label="hasPassed ? 'Reserve a copy' : 'Pre-order Entrusted'"
+      :secondary-to="`/books/${bookSlug}`"
+      secondary-label="About the book"
     />
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
-import RsvpForm from '../../components/forms/RsvpForm.vue';
 import CtaBand from '../../components/sections/CtaBand.vue';
 import ProseBody from '../../components/sections/ProseBody.vue';
 import AppIcon from '../../components/ui/AppIcon.vue';
@@ -200,7 +165,6 @@ import SectionWrapper from '../../components/ui/SectionWrapper.vue';
 import { useApiPage } from '../../composables/useApiPage';
 import { useCountdown } from '../../composables/useCountdown';
 import { usePageMeta } from '../../composables/usePageMeta';
-import { formatDate } from '../../utils/format';
 
 const { payload, loading, error, retry } = useApiPage('/launch');
 
@@ -214,13 +178,8 @@ const occasion = computed(() => meta.value.occasion || '');
 const image = computed(() => meta.value.image || '/images/entrusted-mock.jpg');
 const bookSlug = computed(() => meta.value.book_slug || book.value?.slug || 'entrusted');
 const dateLabel = computed(() => meta.value.date_label || '');
-const rsvpPhone = computed(() => meta.value.rsvp_phone || '');
 
 const { parts, hasPassed, isToday } = useCountdown(() => meta.value.starts_at);
-
-// RSVPs close ahead of the evening itself.
-const { hasPassed: rsvpClosed } = useCountdown(() => meta.value.rsvp_closes_at);
-const closesLabel = computed(() => meta.value.rsvp_closes_label || formatDate(meta.value.rsvp_closes_at));
 
 const body = computed(() =>
   hasPassed.value && meta.value.body_after ? meta.value.body_after : event.value.body || '',

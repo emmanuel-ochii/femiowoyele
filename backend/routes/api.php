@@ -17,7 +17,6 @@ use App\Http\Controllers\Api\PublicSite\NewsletterController;
 use App\Http\Controllers\Api\PublicSite\PaystackWebhookController;
 use App\Http\Controllers\Api\PublicSite\PillarController;
 use App\Http\Controllers\Api\PublicSite\PreOrderController;
-use App\Http\Controllers\Api\PublicSite\RsvpController;
 use App\Http\Controllers\Api\PublicSite\SpeakingController;
 use Illuminate\Support\Facades\Route;
 
@@ -56,7 +55,9 @@ Route::get('/journal', [JournalController::class, 'index']);
 Route::get('/journal/{journalEntry:slug}', [JournalController::class, 'show']);
 Route::post('/contact', ContactController::class)->middleware('throttle:contact');
 Route::post('/newsletter/subscribe', NewsletterController::class)->middleware('throttle:newsletter');
-Route::post('/rsvp', RsvpController::class)->middleware('throttle:rsvp');
+Route::post('/rsvp', fn () => response()->json([
+    'message' => 'RSVP submissions are closed. Please use the pre-order or contact pages for current enquiries.',
+], 410))->middleware('throttle:rsvp');
 Route::post('/webhooks/paystack', PaystackWebhookController::class);
 
 Route::get('/pre-order', [PreOrderController::class, 'show']);

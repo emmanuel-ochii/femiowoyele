@@ -35,7 +35,7 @@ const router = createRouter({
           name: 'entrusted-launch',
           component: () => import('../domains/Launch/EntrustedLaunchPage.vue'),
         },
-        { path: 'rsvp', name: 'rsvp', component: () => import('../domains/Launch/RsvpPage.vue') },
+        { path: 'rsvp', redirect: { name: 'entrusted-launch' } },
         { path: 'pre-order', name: 'pre-order', component: () => import('../domains/PreOrder/PreOrderPage.vue') },
         {
           path: 'pre-order/checkout',

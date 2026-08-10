@@ -9,6 +9,8 @@ const router = createRouter({
   routes: [
     { path: '/', component: { template: '<div />' } },
     { path: '/contact', component: { template: '<div />' } },
+    { path: '/entrusted', component: { template: '<div />' } },
+    { path: '/pre-order', component: { template: '<div />' } },
     { path: '/books/:slug', component: { template: '<div />' } },
   ],
 });
@@ -65,10 +67,9 @@ describe('BookLaunchSection', () => {
     // 4 Aug 12:00 -> 18 Aug 16:00 is 14 days and 4 hours.
     expect(text).toMatch(/14\s*Days/);
     expect(text).toMatch(/4\s*Hours/);
-    // Before the evening the section drives RSVPs, with the story one click away.
-    expect(text).toContain('RSVP for the evening');
+    expect(text).toContain('Pre-order Entrusted');
     expect(text).toContain('See the launch details');
-    expect(wrapper.find('a[href="/rsvp"]').exists()).toBe(true);
+    expect(wrapper.find('a[href="/pre-order"]').exists()).toBe(true);
     expect(wrapper.find('a[href="/entrusted"]').exists()).toBe(true);
   });
 
@@ -79,22 +80,8 @@ describe('BookLaunchSection', () => {
     expect(text).toContain('Published');
     expect(text).toContain('Launched on Tuesday, 18 August 2026');
     expect(text).not.toContain('Counting down');
-    // The call to action re-words itself once the evening has happened.
-    expect(text).toContain('Read about the evening');
-    expect(text).not.toContain('RSVP for the evening');
+    expect(text).toContain('Read about the launch');
+    expect(text).not.toContain('Pre-order Entrusted');
     expect(wrapper.find('a[href="/rsvp"]').exists()).toBe(false);
-  });
-
-  it('only renders an RSVP line when a phone number is published', async () => {
-    // Assert on the tel: link, not the word "RSVP" — the section's own call to
-    // action legitimately uses that word.
-    const withoutPhone = await mountSection(launchBlock('2026-08-18T16:00:00+01:00'));
-    expect(withoutPhone.find('a[href^="tel:"]').exists()).toBe(false);
-
-    const block = launchBlock('2026-08-18T16:00:00+01:00');
-    block.meta.rsvp_phone = '0903 495 8461';
-    const withPhone = await mountSection(block);
-    expect(withPhone.text()).toContain('RSVP 0903 495 8461');
-    expect(withPhone.find('a[href="tel:09034958461"]').exists()).toBe(true);
   });
 });

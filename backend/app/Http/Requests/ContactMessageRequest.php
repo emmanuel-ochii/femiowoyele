@@ -22,7 +22,7 @@ class ContactMessageRequest extends FormRequest
             'type' => [
                 'required',
                 'string',
-                Rule::in(['speaking', 'consulting', 'research', 'partnership', 'media', 'mentorship', 'launch', 'general']),
+                Rule::in(['speaking', 'consulting', 'research', 'partnership', 'media', 'mentorship', 'books', 'general']),
             ],
         ];
     }

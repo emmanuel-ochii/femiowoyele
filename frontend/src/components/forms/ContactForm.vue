@@ -118,7 +118,7 @@ const props = defineProps({
 
 const enquiryTypes = [
   { value: 'general', label: 'General enquiry' },
-  { value: 'launch', label: 'Book launch RSVP' },
+  { value: 'books', label: 'Book or pre-order enquiry' },
   { value: 'speaking', label: 'Speaking invitation' },
   { value: 'mentorship', label: 'Mentorship' },
   { value: 'consulting', label: 'Advisory or consulting' },
@@ -132,7 +132,7 @@ const schema = toTypedSchema(
     name: z.string().min(2, 'Please enter your name.'),
     email: z.string().min(1, 'Please enter your email address.').email('Please enter a valid email address.'),
     subject: z.string().min(4, 'Add a short subject line.'),
-    type: z.enum(['speaking', 'consulting', 'research', 'partnership', 'media', 'mentorship', 'launch', 'general']),
+    type: z.enum(['speaking', 'consulting', 'research', 'partnership', 'media', 'mentorship', 'books', 'general']),
     message: z.string().min(20, 'A little more context helps — 20 characters or more.').max(5000, 'Please keep this under 5000 characters.'),
   }),
 );

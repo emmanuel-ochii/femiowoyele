@@ -475,18 +475,12 @@ class DatabaseSeeder extends Seeder
                     // ISO-8601 with the West Africa Time offset — the countdown and
                     // the "already launched" state are both derived from this.
                     'starts_at' => '2026-08-18T16:00:00+01:00',
-                    // RSVPs close at the end of this day (West Africa Time), a
-                    // week before the evening, so numbers can be finalised.
-                    'rsvp_closes_at' => '2026-08-11T23:59:59+01:00',
-                    'rsvp_closes_label' => 'Tuesday, 11 August 2026',
                     'date_label' => 'Tuesday, 18 August 2026',
                     'time_label' => '4:00 p.m.',
                     'venue' => 'Watercress Event Centre',
                     'address' => '5 Alade Avenue, Allen, Ikeja, Lagos',
                     'image' => '/images/entrusted-mock.jpg',
                     'book_slug' => 'entrusted',
-                    // Add 'rsvp_phone' => '...' here to publish a direct RSVP line;
-                    // while it is absent, RSVPs are routed through the contact form.
                 ],
                 'order' => 4,
             ],

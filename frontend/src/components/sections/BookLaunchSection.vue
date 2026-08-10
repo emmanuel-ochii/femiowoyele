@@ -83,16 +83,11 @@
           </dl>
 
           <div v-reveal="260" class="mt-11 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4">
-            <!-- Before the evening the useful action is to RSVP; afterwards it
-                 is to read what happened. -->
-            <BaseButton :to="hasPassed ? '/entrusted' : '/rsvp'" variant="gold" size="lg" icon="arrowRight">
-              {{ hasPassed ? 'Read about the evening' : 'RSVP for the evening' }}
+            <BaseButton :to="hasPassed ? '/entrusted' : '/pre-order'" variant="gold" size="lg" icon="arrowRight">
+              {{ hasPassed ? 'Read about the launch' : 'Pre-order Entrusted' }}
             </BaseButton>
             <BaseButton :to="hasPassed ? `/books/${bookSlug}` : '/entrusted'" variant="outline-light" size="lg">
               {{ hasPassed ? 'About the book' : 'See the launch details' }}
-            </BaseButton>
-            <BaseButton v-if="rsvpPhone" :href="`tel:${rsvpPhone.replace(/\s+/g, '')}`" variant="ghost-light" size="lg">
-              RSVP {{ rsvpPhone }}
             </BaseButton>
           </div>
         </div>
@@ -120,7 +115,6 @@ const tagline = computed(() => meta.value.tagline || '');
 const image = computed(() => meta.value.image || '/images/entrusted-mock.jpg');
 const bookSlug = computed(() => meta.value.book_slug || 'entrusted');
 const dateLabel = computed(() => meta.value.date_label || '');
-const rsvpPhone = computed(() => meta.value.rsvp_phone || '');
 
 const { parts, hasPassed, isToday } = useCountdown(() => meta.value.starts_at);
 

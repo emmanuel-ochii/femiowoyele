@@ -46,9 +46,9 @@ export const adminResources = [
   },
   {
     slug: 'rsvps',
-    label: 'Launch RSVPs',
-    singularLabel: 'launch RSVP',
-    description: 'Review launch responses. RSVPs are created by invitees from the public form.',
+    label: 'Archived RSVPs',
+    singularLabel: 'archived RSVP',
+    description: 'Historical launch responses kept for records. New public RSVP submissions are closed.',
     allowCreate: false,
     allowDelete: false,
     readOnly: true,

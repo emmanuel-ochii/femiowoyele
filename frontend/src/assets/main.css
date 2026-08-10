@@ -239,9 +239,8 @@
     @apply text-red-300;
   }
 
-  /* A light panel nested inside a dark section (an RSVP card on a navy page)
-     wins the light styles back. Declared after `.on-dark` so it takes
-     precedence at equal specificity. */
+  /* A light panel nested inside a dark section wins the light styles back.
+     Declared after `.on-dark` so it takes precedence at equal specificity. */
   .on-light .field-input {
     @apply border-navy-200 text-navy-900 hover:border-navy-300 focus:border-forest-700;
   }

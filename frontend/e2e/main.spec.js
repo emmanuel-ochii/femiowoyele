@@ -29,15 +29,17 @@ test('mobile navigation drawer opens, traps focus, and closes on Escape', async 
 test('submits a contact enquiry', async ({ page }) => {
   await page.goto('/contact');
 
-  await page.getByLabel('Full name').fill('E2E Reviewer');
-  await page.getByLabel('Email address').fill('reviewer@example.com');
-  await page.getByLabel('Nature of enquiry').selectOption('research');
-  await page.getByLabel('Subject').fill('Research conversation');
-  await page
+  const contactForm = page.locator('form').filter({ has: page.getByRole('button', { name: 'Send enquiry' }) });
+
+  await contactForm.getByLabel('Full name').fill('E2E Reviewer');
+  await contactForm.getByLabel('Email address').fill('reviewer@example.com');
+  await contactForm.getByLabel('Nature of enquiry').selectOption('research');
+  await contactForm.getByLabel('Subject').fill('Research conversation');
+  await contactForm
     .getByLabel('Message')
     .fill('This is a realistic contact enquiry submitted by the Playwright end-to-end test suite.');
 
-  await page.getByRole('button', { name: 'Send enquiry' }).click();
+  await contactForm.getByRole('button', { name: 'Send enquiry' }).click();
   await expect(page.getByText('Thank you. Your message has been received.')).toBeVisible();
 });
 

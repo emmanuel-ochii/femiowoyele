@@ -12,9 +12,9 @@ class Notifier
     /**
      * Delivers an internal notification to the configured recipients.
      *
-     * Sending is deliberately best-effort: a guest's RSVP or enquiry is already
-     * safely stored by the time this runs, so an email provider outage must be
-     * logged rather than surfaced as a failed submission.
+     * Sending is deliberately best-effort: the enquiry or transaction is
+     * already safely stored by the time this runs, so an email provider outage
+     * must be logged rather than surfaced as a failed submission.
      */
     public static function send(Mailable $mailable): bool
     {
@@ -45,9 +45,9 @@ class Notifier
     }
 
     /**
-     * Delivers a mailable to a member of the public (an RSVP acknowledgement,
-     * for instance). Best-effort for the same reason: their submission is
-     * already stored, so a provider failure must not surface as an error.
+     * Delivers a mailable to a member of the public. Best-effort for the same
+     * reason: their submission is already stored, so a provider failure must
+     * not surface as an error.
      */
     public static function sendTo(string $email, Mailable $mailable): bool
     {
