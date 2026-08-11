@@ -399,35 +399,37 @@ class DatabaseSeeder extends Seeder
     /**
      * Collection points for pre-ordered copies.
      *
-     * The launch venue is confirmed; the rest are placeholders so the table has
-     * shape. Replace them in the admin studio under Pickup Points before the
-     * pre-order page goes live.
+     * Keep seeded collection records inactive until the real collection
+     * arrangements are approved in the admin studio.
      */
     private function seedPickupPoints(): void
     {
         $points = [
             [
-                'name' => 'Launch evening — Watercress Event Centre',
-                'address' => '5 Alade Avenue, Allen, Ikeja',
-                'city' => 'Lagos',
-                'opening_hours' => 'Tuesday, 18 August 2026, from 4:00 p.m.',
-                'note' => 'Collect your copy on the night of the unveiling.',
+                'name' => 'Primary collection point',
+                'address' => 'To be confirmed',
+                'city' => null,
+                'opening_hours' => null,
+                'note' => 'Buyers will receive collection details by email.',
+                'is_active' => false,
                 'order' => 1,
             ],
             [
-                'name' => 'Ikeja collection point',
+                'name' => 'Secondary collection point',
                 'address' => 'To be confirmed',
-                'city' => 'Lagos',
-                'opening_hours' => 'Weekdays, 10:00 a.m. – 5:00 p.m.',
-                'note' => 'Placeholder — confirm address before launch.',
+                'city' => null,
+                'opening_hours' => null,
+                'note' => 'Buyers will receive collection details by email.',
+                'is_active' => false,
                 'order' => 2,
             ],
             [
-                'name' => 'Lekki collection point',
+                'name' => 'Additional collection point',
                 'address' => 'To be confirmed',
-                'city' => 'Lagos',
-                'opening_hours' => 'Weekdays, 10:00 a.m. – 5:00 p.m.',
-                'note' => 'Placeholder — confirm address before launch.',
+                'city' => null,
+                'opening_hours' => null,
+                'note' => 'Buyers will receive collection details by email.',
+                'is_active' => false,
                 'order' => 3,
             ],
         ];
@@ -464,21 +466,11 @@ class DatabaseSeeder extends Seeder
                 'context' => 'home',
                 'slug' => 'home.launch',
                 'title' => 'Entrusted',
-                'body' => 'Femi Owoyele will unveil his first book, Entrusted, in an intimate evening shaped around stewardship, responsibility, and the invitation to build beyond ourselves.',
+                'body' => 'Entrusted brings together years of writing, teaching, mentoring, building, and service into a clear invitation to steward what has been placed in our hands.',
                 'meta' => [
-                    // Swapped in automatically once `starts_at` has passed, so the
-                    // section stops speaking in the future tense on its own.
-                    'body_after' => 'Entrusted was unveiled before family, friends, mentors, and the builders who have shaped the work, opening a wider conversation about stewardship, responsibility, and meaningful contribution.',
-                    'occasion' => 'The Entrusted Launch',
-                    'tagline' => 'An evening of gratitude and great beginnings',
+                    'occasion' => 'Stewardship. Responsibility. Purpose.',
+                    'tagline' => 'Stewardship. Responsibility. Purpose.',
                     'subtitle' => 'Lessons, responsibilities and truths for a life of legacy',
-                    // ISO-8601 with the West Africa Time offset — the countdown and
-                    // the "already launched" state are both derived from this.
-                    'starts_at' => '2026-08-18T16:00:00+01:00',
-                    'date_label' => 'Tuesday, 18 August 2026',
-                    'time_label' => '4:00 p.m.',
-                    'venue' => 'Watercress Event Centre',
-                    'address' => '5 Alade Avenue, Allen, Ikeja, Lagos',
                     'image' => '/images/entrusted-mock.jpg',
                     'book_slug' => 'entrusted',
                 ],

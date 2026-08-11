@@ -87,7 +87,7 @@
           </p>
 
           <div class="mt-12 flex flex-wrap gap-x-4 gap-y-3">
-            <BaseButton to="/entrusted" variant="gold" size="lg" icon="arrowRight">About the launch</BaseButton>
+            <BaseButton to="/entrusted" variant="gold" size="lg" icon="arrowRight">About Entrusted</BaseButton>
             <BaseButton to="/books/entrusted" variant="outline-light" size="lg">About the book</BaseButton>
           </div>
         </div>

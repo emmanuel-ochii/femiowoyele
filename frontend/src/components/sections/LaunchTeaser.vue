@@ -23,8 +23,6 @@
     <span class="relative min-w-0 flex-1">
       <span class="flex flex-wrap items-center gap-x-3 gap-y-1">
         <span class="text-micro font-semibold uppercase text-gold-400">{{ statusLabel }}</span>
-        <span v-if="countdownLabel" class="h-1 w-1 shrink-0 rounded-full bg-gold-500"></span>
-        <span v-if="countdownLabel" class="text-micro font-semibold uppercase text-white/55">{{ countdownLabel }}</span>
       </span>
 
       <span class="mt-2 block font-serif text-xl leading-tight text-white sm:text-2xl">{{ title }}</span>
@@ -42,10 +40,8 @@
 <script setup>
 import { computed } from 'vue';
 import AppIcon from '../ui/AppIcon.vue';
-import { useCountdown } from '../../composables/useCountdown';
 
 const props = defineProps({
-  /** The launch content block, or null when nothing is scheduled. */
   launch: { type: Object, default: null },
 });
 
@@ -54,17 +50,5 @@ const title = computed(() => props.launch?.title || 'Entrusted');
 const image = computed(() => meta.value.image || '/images/entrusted-mock-sm.jpg');
 const occasion = computed(() => meta.value.occasion || '');
 
-const { parts, hasPassed, isToday } = useCountdown(() => meta.value.starts_at);
-
-const statusLabel = computed(() => {
-  if (hasPassed.value) return 'Out now';
-  if (isToday.value) return 'Launching today';
-  return 'Book launch';
-});
-
-const countdownLabel = computed(() => {
-  if (hasPassed.value || isToday.value) return meta.value.date_label || '';
-  const { days } = parts.value;
-  return days === 1 ? '1 day to go' : `${days} days to go`;
-});
+const statusLabel = computed(() => 'Featured book');
 </script>

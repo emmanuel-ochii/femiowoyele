@@ -32,7 +32,7 @@ class AdminPreOrderResourcesTest extends TestCase
 
     public function test_pickup_points_expose_the_fields_the_admin_form_edits(): void
     {
-        PickupPoint::create(['name' => 'Launch evening', 'address' => '5 Alade Avenue', 'is_active' => true, 'order' => 3]);
+        PickupPoint::create(['name' => 'Primary collection point', 'address' => 'To be confirmed', 'is_active' => true, 'order' => 3]);
 
         $row = $this->actingAs($this->admin(), 'sanctum')
             ->getJson('/api/admin/pickup-points')
@@ -49,7 +49,7 @@ class AdminPreOrderResourcesTest extends TestCase
 
     public function test_editing_one_pickup_point_field_preserves_the_others(): void
     {
-        $point = PickupPoint::create(['name' => 'Launch evening', 'address' => '5 Alade Avenue', 'is_active' => true, 'order' => 3]);
+        $point = PickupPoint::create(['name' => 'Primary collection point', 'address' => 'To be confirmed', 'is_active' => true, 'order' => 3]);
         $admin = $this->admin();
 
         $payload = $this->actingAs($admin, 'sanctum')->getJson('/api/admin/pickup-points')->json('data.0');
@@ -68,7 +68,7 @@ class AdminPreOrderResourcesTest extends TestCase
 
     public function test_orders_expose_an_id_so_the_admin_can_target_a_row(): void
     {
-        $pickupPoint = PickupPoint::create(['name' => 'Launch evening', 'address' => '5 Alade Avenue', 'is_active' => true, 'order' => 3]);
+        $pickupPoint = PickupPoint::create(['name' => 'Primary collection point', 'address' => 'To be confirmed', 'is_active' => true, 'order' => 3]);
         $order = $this->order(['pickup_point_id' => $pickupPoint->id, 'paid_at' => now()]);
 
         $this->actingAs($this->admin(), 'sanctum')
@@ -76,8 +76,8 @@ class AdminPreOrderResourcesTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.id', $order->id)
             ->assertJsonPath('data.0.reference', 'ENT-TEST123456')
-            ->assertJsonPath('data.0.pickup_point_name', 'Launch evening')
-            ->assertJsonPath('data.0.pickup_point_address', '5 Alade Avenue');
+            ->assertJsonPath('data.0.pickup_point_name', 'Primary collection point')
+            ->assertJsonPath('data.0.pickup_point_address', 'To be confirmed');
     }
 
     public function test_orders_cannot_be_created_edited_or_deleted_in_the_admin(): void

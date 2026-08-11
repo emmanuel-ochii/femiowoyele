@@ -53,7 +53,7 @@ export const useSiteStore = defineStore('site', {
         items: [
           { label: 'Research & Ideas', to: '/research-ideas', description: 'Long-form essays and frameworks' },
           { label: 'Books', to: '/books', description: 'Entrusted and works in progress' },
-          { label: 'The Entrusted launch', to: '/entrusted', description: '18 August 2026, Ikeja, Lagos' },
+          { label: 'Entrusted', to: '/entrusted', description: 'Stewardship, responsibility, and purpose' },
           { label: 'Journal', to: '/journal', description: 'Shorter notes between publications' },
         ],
       },
@@ -77,7 +77,7 @@ export const useSiteStore = defineStore('site', {
         items: [
           { label: 'Research & Ideas', to: '/research-ideas' },
           { label: 'Books', to: '/books' },
-          { label: 'The Entrusted launch', to: '/entrusted' },
+          { label: 'Entrusted', to: '/entrusted' },
           { label: 'Pre-order', to: '/pre-order' },
           { label: 'Journal', to: '/journal' },
         ],

@@ -18,12 +18,12 @@
 
           <div class="mt-7 grid gap-3 border-y border-white/14 py-5 text-[0.88rem] text-white/68 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
             <p>
-              <span class="block text-micro font-semibold uppercase text-gold-300">Official unveiling</span>
-              <span class="mt-2 block text-white">18 August 2026</span>
-            </p>
-            <p>
               <span class="block text-micro font-semibold uppercase text-gold-300">Pre-order gift</span>
               <span class="mt-2 block text-white">Included with every copy</span>
+            </p>
+            <p>
+              <span class="block text-micro font-semibold uppercase text-gold-300">Secure checkout</span>
+              <span class="mt-2 block text-white">Payment confirms your reservation</span>
             </p>
           </div>
         </div>
@@ -272,6 +272,6 @@ const onSubmit = handleSubmit(async (values) => {
 
 usePageMeta(() => ({
   title: `Pre-order ${book.value.title || 'Entrusted'}`,
-  description: `Pre-order ${book.value.title || 'Entrusted'} by Femi Owoyele and collect your copy in Lagos.`,
+  description: `Pre-order ${book.value.title || 'Entrusted'} by Femi Owoyele and receive collection details by email.`,
 }));
 </script>

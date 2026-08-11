@@ -22,7 +22,7 @@ class PreOrderTest extends TestCase
 
         config(['payments.book_price_minor' => 1500000, 'payments.driver' => 'mock']);
 
-        PickupPoint::create(['name' => 'Launch evening', 'address' => '5 Alade Avenue', 'city' => 'Lagos', 'order' => 1]);
+        PickupPoint::create(['name' => 'Primary collection point', 'address' => 'To be confirmed', 'order' => 1]);
         PickupPoint::create(['name' => 'Retired point', 'address' => 'Closed', 'is_active' => false, 'order' => 2]);
     }
 
@@ -87,7 +87,7 @@ class PreOrderTest extends TestCase
             ->assertJsonPath('data.status', Order::STATUS_PAID)
             // Only the active point is offered.
             ->assertJsonCount(1, 'meta.pickup_points')
-            ->assertJsonPath('meta.pickup_points.0.name', 'Launch evening');
+            ->assertJsonPath('meta.pickup_points.0.name', 'Primary collection point');
 
         $this->assertNotNull(Order::where('reference', $reference)->value('paid_at'));
     }
@@ -159,7 +159,7 @@ class PreOrderTest extends TestCase
 
         $html = (new OrderReceipt(Order::where('reference', $reference)->first()))->render();
 
-        $this->assertStringContainsString('Launch evening', $html);
+        $this->assertStringContainsString('Primary collection point', $html);
         $this->assertStringContainsString($reference, $html);
         $this->assertStringNotContainsString('Retired point', $html);
     }
